@@ -1,0 +1,30 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.5.30'
+    id "fmu4j"
+}
+
+wrapper {
+    gradleVersion = '7.2'
+    distributionType = Wrapper.DistributionType.ALL
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://ais.jfrog.io/artifactory/ais-gradle-dev-local/"}
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+
+    implementation "no.ntnu.ais.fmu4j:fmi-export:0.1.0-SNAPSHOT"
+}
+
+jar {
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+fmu4j {
+    mainClasses = ["no.ntnu.ais.VisualisationFmu"]
+}

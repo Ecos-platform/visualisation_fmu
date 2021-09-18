@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+    id 'java-gradle-plugin'
+}
+
+gradlePlugin {
+    plugins {
+        fmi4jPlugin {
+            id = 'fmu4j'
+            implementationClass = 'no.ntnu.ais.fmu4j.plugin.FmuBuilderPlugin'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://ais.jfrog.io/artifactory/ais-gradle-dev-local/"}
+}
+
+dependencies {
+    compileOnly gradleApi()
+
+    implementation "no.ntnu.ais.fmu4j:fmu-builder:0.1.0-SNAPSHOT"
+}
