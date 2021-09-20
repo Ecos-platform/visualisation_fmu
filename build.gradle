@@ -17,6 +17,13 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
     implementation "no.ntnu.ais.fmu4j:fmi-export:0.1.0-SNAPSHOT"
+
+    def ktor_version = "1.6.3"
+    implementation "io.ktor:ktor-server-core:$ktor_version"
+    implementation "io.ktor:ktor-server-netty:$ktor_version"
+    implementation "io.ktor:ktor-websockets:$ktor_version"
+
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.6'
 }
 
 jar {

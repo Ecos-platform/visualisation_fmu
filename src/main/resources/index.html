@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>FMU visualisation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            max-height: 100%;
+            font-family: sans-serif;
+            line-height: 1.5em;
+        }
+
+        main {
+            position: fixed;
+            top: 0; /* Set this to the height of the header */
+            bottom: 50px; /* Set this to the height of the footer */
+            left: 230px;
+            right: 0;
+            overflow: auto;
+            background: #fff;
+        }
+
+        #header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 230px;
+            height: 50px;
+            overflow: hidden; /* Disables scrollbars on the header frame. To enable scrollbars, change "hidden" to "scroll" */
+            background: #BCCE98;
+        }
+
+        #footer {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            overflow: hidden; /* Disables scrollbars on the footer frame. To enable scrollbars, change "hidden" to "scroll" */
+            background: #BCCE98;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 50px);
+            overflow: hidden;
+        }
+
+        #fpsStats {
+            position: relative;
+            top: 0;
+            left: 0;
+        }
+
+        #updateStats {
+            position: relative;
+            top: 0;
+            left: 80px;
+        }
+
+        #nav {
+            position: absolute;
+            top: 50px; /* Set this to the height of the header */
+            bottom: 50px; /* Set this to the height of the footer */
+            left: 0;
+            width: 230px;
+            overflow: auto; /* Scrollbars will appear on this frame only when there's enough content to require scrolling. To disable scrollbars, change to "hidden", or use "scroll" to enable permanent scrollbars */
+            background: #DAE9BC;
+        }
+
+        .innertube {
+            margin: 15px; /* Provides padding for the content */
+        }
+
+        p {
+            color: #555;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul a {
+            color: darkgreen;
+            text-decoration: none;
+        }
+
+        * html main {
+            height: 100%;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+<header id="header">
+    <div class="innertube">
+        <p>Vico</p>
+    </div>
+</header>
+
+<main>
+
+    <div id="canvas">
+        <div id="fpsStats"></div>
+        <div id="updateStats"></div>
+    </div>
+
+</main>
+
+<nav id="nav">
+    <div class="innertube">
+        <h1>Links</h1>
+        <ul>
+            <li><a href="/index.html">Index</a></li>
+            <li><a href="https://github.com/NTNU-IHB/Vico">Vico GitHub</a></li>
+        </ul>
+    </div>
+</nav>
+
+<footer id="footer">
+    <div class="innertube">
+        <p>&copy; 2021 NTNU Ålesund</p>
+    </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r129/three.min.js"></script>
+<script src="/js/OBJLoader.js"></script>
+<script src="/js/MTLLoader.js"></script>
+<script src="/js/OrbitControls.js"></script>
+<script src="/js/Capsule.js"></script>
+<script src="/js/Stats.js"></script>
+<script src="/js/Frame.js"></script>
+<script src="/js/GeometryParser.js"></script>
+<script src="/js/Water.js"></script>
+<script src="/js/VisualizationApp.js"></script>
+<script>
+
+    (function () {
+        let viz = new VisualizationApp()
+        viz.animate()
+    })();
+
+</script>
+</body>
+</html>
