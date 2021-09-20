@@ -33,20 +33,21 @@ class VisualizationApp {
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-        const socket = new WebSocket('ws://' + window.location.hostname + ':8000/visual');
+        const socket = new WebSocket('ws://' + window.location.hostname + ':9090');
 
         socket.addEventListener('open', function (event) {
-            console.log("Websocket connection for visuals opened..")
+            console.log("Websocket connection opened..")
             send(socket, "subscribe")
         });
 
         socket.addEventListener('close', function (event) {
-            console.log("Websocket connection for visuals closed..")
+            console.log("Websocket connection closed..")
         });
 
         socket.addEventListener('message', function (event) {
             let obj;
             let payload = JSON.parse(event.data)
+            console.log(payload)
             const action = payload.action
 
             switch (action) {
@@ -58,7 +59,7 @@ class VisualizationApp {
                     that.scene.remove(obj)
                     break
                 case "setup":
-                    that.setup(payload.data.entities)
+                    that.setup(payload.data)
                     const id = setInterval(function () {
                         if (!send(socket, "update")) {
                             clearInterval(id)
@@ -66,7 +67,7 @@ class VisualizationApp {
                     }, 50)
                     break
                 case "update":
-                    that.update(payload.data.entities)
+                    that.update(payload.data)
                     that.updateStats.update()
                     break
                 case "visibilityChanged":
@@ -93,11 +94,6 @@ class VisualizationApp {
 
         });
 
-        document.addEventListener('keydown', function (event) {
-            let key = event.key
-            send(socket, "keyPressed", key)
-        })
-
         this.updateProjectionMatrix = function () {
             that.camera.aspect = that.container.offsetWidth / that.container.offsetHeight
             that.camera.updateProjectionMatrix()
@@ -112,115 +108,104 @@ class VisualizationApp {
 
     }
 
-    setup(entities) {
+    setup(transforms) {
 
         let mat;
-        console.log(entities)
+        console.log(transforms)
 
-        for (let key in entities) {
+        for (let key in transforms) {
 
-            const entity = entities[key]
+            const transform = transforms[key]
 
             let obj = new THREE.Object3D()
             obj.name = entity.name
 
-            const components = entity.components
-            for (let type in components) {
-                const data = components[type]
-                switch (type) {
-                    case "transform":
-                        obj.position.x = data.position.x
-                        obj.position.y = data.position.y
-                        obj.position.z = data.position.z
-                        break
-                    case "geometry":
-                        obj.visible = data.visible
-                        mat = new THREE.MeshBasicMaterial({
-                            color: data.color,
-                            wireframe: data.wireframe
-                        })
-                        if (data.opacity < 1) {
-                            mat.opacity = data.opacity
-                            mat.transparent = true
-                        }
-                        createMesh(data.shape, mat, function (mesh) {
-                            mesh.matrixAutoUpdate = false
-                            if (data.offset) {
-                                mesh.matrix.elements = data.offset
-                            }
-                            obj.add(mesh)
-                        })
-                        break
-                    case "water":
-                        const waterGeometry = new THREE.PlaneGeometry(data.width, data.height);
-                        this.water = new THREE.Water(
-                            waterGeometry,
-                            {
-                                textureWidth: 512,
-                                textureHeight: 512,
-                                waterNormals: new THREE.TextureLoader().load('/textures/waternormals.jpg', function (texture) {
-                                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                                }),
-                                alpha: 1.0,
-                                sunDirection: new THREE.Vector3(),
-                                sunColor: 0xffffff,
-                                waterColor: 0x001e0f,
-                                distortionScale: 3.7,
-                                fog: this.scene.fog !== undefined
-                            }
-                        );
+            obj.position.x = transform.position.x
+            obj.position.y = transform.position.y
+            obj.position.z = transform.position.z
 
-                        this.water.rotation.x = -Math.PI / 2;
-                        obj.add(this.water)
-                        break
-                    case "camera":
-                        this.camera.fov = data.fov
-                        this.camera.position.x = components["transform"].position.x
-                        this.camera.position.y = components["transform"].position.y
-                        this.camera.position.z = components["transform"].position.z
-                        this.controls.update()
-                        this.updateProjectionMatrix()
-                        break
-                    case "trail":
-                        mat = new THREE.LineBasicMaterial({
-                            color: data.color
-                        })
-                        obj.userData.trail = {
-                            "points": [],
-                            "mat": mat,
-                            "line": undefined
-                        }
-                        this.trailObjects.push(obj)
-                        break
-                }
-            }
+                //     case "geometry":
+                //         obj.visible = data.visible
+                //         mat = new THREE.MeshBasicMaterial({
+                //             color: data.color,
+                //             wireframe: data.wireframe
+                //         })
+                //         if (data.opacity < 1) {
+                //             mat.opacity = data.opacity
+                //             mat.transparent = true
+                //         }
+                //         createMesh(data.shape, mat, function (mesh) {
+                //             mesh.matrixAutoUpdate = false
+                //             if (data.offset) {
+                //                 mesh.matrix.elements = data.offset
+                //             }
+                //             obj.add(mesh)
+                //         })
+                //         break
+                //     case "water":
+                //         const waterGeometry = new THREE.PlaneGeometry(data.width, data.height);
+                //         this.water = new THREE.Water(
+                //             waterGeometry,
+                //             {
+                //                 textureWidth: 512,
+                //                 textureHeight: 512,
+                //                 waterNormals: new THREE.TextureLoader().load('/textures/waternormals.jpg', function (texture) {
+                //                     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                //                 }),
+                //                 alpha: 1.0,
+                //                 sunDirection: new THREE.Vector3(),
+                //                 sunColor: 0xffffff,
+                //                 waterColor: 0x001e0f,
+                //                 distortionScale: 3.7,
+                //                 fog: this.scene.fog !== undefined
+                //             }
+                //         );
+                //
+                //         this.water.rotation.x = -Math.PI / 2;
+                //         obj.add(this.water)
+                //         break
+                //     case "camera":
+                //         this.camera.fov = data.fov
+                //         this.camera.position.x = components["transform"].position.x
+                //         this.camera.position.y = components["transform"].position.y
+                //         this.camera.position.z = components["transform"].position.z
+                //         this.controls.update()
+                //         this.updateProjectionMatrix()
+                //         break
+                //     case "trail":
+                //         mat = new THREE.LineBasicMaterial({
+                //             color: data.color
+                //         })
+                //         obj.userData.trail = {
+                //             "points": [],
+                //             "mat": mat,
+                //             "line": undefined
+                //         }
+                //         this.trailObjects.push(obj)
+                //         break
+                // }
+            // }
 
             this.scene.add(obj)
-            this.objects[entity.name] = obj
+            this.objects[transform.name] = obj
         }
-        this.update(entities)
+        this.update(transforms)
     }
 
-    update(entities) {
-        for (let key in entities) {
-            const entity = entities[key]
-            let obj = this.objects[entity.name]
+    update(transforms) {
+        for (let key in transforms) {
+            const transform = transforms[key]
+            let obj = this.objects[transform.name]
             if (obj) {
-                const components = entity.components
-                for (let type in components) {
-                    const data = components[type]
-                    switch (type) {
-                        case "transform":
-                            obj.position.x = data.position.x
-                            obj.position.y = data.position.y
-                            obj.position.z = data.position.z
-                            obj.quaternion.x = data.quaternion.x
-                            obj.quaternion.y = data.quaternion.y
-                            obj.quaternion.z = data.quaternion.z
-                            obj.quaternion.w = data.quaternion.w
-                            break
-                    }
-                }
+
+                obj.position.x = transform.position.x
+                obj.position.y = transform.position.y
+                obj.position.z = transform.position.z
+                // obj.quaternion.x = data.quaternion.x
+                // obj.quaternion.y = data.quaternion.y
+                // obj.quaternion.z = data.quaternion.z
+                // obj.quaternion.w = data.quaternion.w
+
             }
         }
     }

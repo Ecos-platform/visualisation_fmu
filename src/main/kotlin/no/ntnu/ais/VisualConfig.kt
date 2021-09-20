@@ -4,6 +4,7 @@ class VisualConfig(
     val transforms: List<Transform>
 ) {
     fun toMap(setup: Boolean): List<Map<String, Any>> {
+
         return transforms.map { it.toMap(setup) }
     }
 
