@@ -16,6 +16,7 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.runBlocking
 import no.ntnu.ais.fmu4j.export.fmi2.Fmi2Slave
 import no.ntnu.ais.fmu4j.export.fmi2.ScalarVariable
 import no.ntnu.ais.fmu4j.modeldescription.fmi2.Fmi2Causality
@@ -49,18 +50,38 @@ class VisualisationFmu(
 
     override fun registerVariables() {
 
+        register(string("changeCommand") { "" }.setter {
+
+        })
+
         for (i in 0..1000) {
-            register(real("transform[$i].position.x") { visualConfig?.transforms?.getOrNull(i)?.position?.x ?: 0.0  }.setter { v -> visualConfig?.transforms?.getOrNull(i)?.position?.apply { x = v } }
+
+            register(real("transform[$i].position.x") { visualConfig?.transforms?.getOrNull(i)?.position?.x ?: 0.0 }
+                .setter { v -> visualConfig?.transforms?.getOrNull(i)?.position?.apply { x = v } }
                 .causality(Fmi2Causality.input))
-            register(real("transform[$i].position.y") { visualConfig?.transforms?.getOrNull(i)?.position?.x ?: 0.0 }.setter { v -> visualConfig?.transforms?.getOrNull(i)?.position?.apply { y = v } }
+            register(real("transform[$i].position.y") { visualConfig?.transforms?.getOrNull(i)?.position?.x ?: 0.0 }
+                .setter { v -> visualConfig?.transforms?.getOrNull(i)?.position?.apply { y = v } }
                 .causality(Fmi2Causality.input))
-            register(real("transform[$i].position.z") { visualConfig?.transforms?.getOrNull(i)?.position?.x ?: 0.0 }.setter { v -> visualConfig?.transforms?.getOrNull(i)?.position?.apply { z = v } }
+            register(real("transform[$i].position.z") { visualConfig?.transforms?.getOrNull(i)?.position?.x ?: 0.0 }
+                .setter { v -> visualConfig?.transforms?.getOrNull(i)?.position?.apply { z = v } }
                 .causality(Fmi2Causality.input))
+
         }
 
     }
 
-    override fun enterInitialisationMode() {
+    private fun sendSubs(frame: JsonFrame) {
+        val json = frame.toJson()
+        synchronized(subscribers) {
+            runBlocking {
+                subscribers.forEach { sub ->
+                    sub.send(Frame.Text(json))
+                }
+            }
+        }
+    }
+
+    override fun exitInitialisationMode() {
 
         visualConfig = Gson().fromJson(config, VisualConfig::class.java)
 
@@ -146,9 +167,7 @@ class VisualisationFmu(
             }
 
         }.start(wait = false)
-    }
 
-    override fun exitInitialisationMode() {
         updateFrame = JsonFrame(
             action = "update",
             data = visualConfig?.toMap(false)

@@ -47,7 +47,6 @@ class VisualizationApp {
         socket.addEventListener('message', function (event) {
             let obj;
             let payload = JSON.parse(event.data)
-            console.log(payload)
             const action = payload.action
 
             switch (action) {
@@ -118,11 +117,35 @@ class VisualizationApp {
             const transform = transforms[key]
 
             let obj = new THREE.Object3D()
-            obj.name = entity.name
+            obj.name = transform.name
 
             obj.position.x = transform.position.x
             obj.position.y = transform.position.y
             obj.position.z = transform.position.z
+
+            for (let i = 0; i < transform.geometries.length; i++) {
+
+                let geometry = transform.geometries[i]
+
+                // obj.visible = data.visible
+                mat = new THREE.MeshBasicMaterial({
+                    color: geometry.color,
+                    wireframe: geometry.wireframe
+                })
+                if (geometry.opacity < 1) {
+                    mat.opacity = geometry.opacity
+                    mat.transparent = true
+                }
+                createMesh(geometry.shape, mat, function (mesh) {
+                    mesh.matrixAutoUpdate = false
+                    if (geometry.offset) {
+                        mesh.matrix.elements = geometry.offset
+                    }
+                    console.log(mesh)
+                    obj.add(mesh)
+                })
+
+            }
 
                 //     case "geometry":
                 //         obj.visible = data.visible
@@ -188,6 +211,7 @@ class VisualizationApp {
 
             this.scene.add(obj)
             this.objects[transform.name] = obj
+            console.log(obj)
         }
         this.update(transforms)
     }

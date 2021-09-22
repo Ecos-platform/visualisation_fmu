@@ -11,23 +11,23 @@ class VisualConfig(
 }
 
 class Vector3(
-    var x: Double,
-    var y: Double,
-    var z: Double
+    var x: Double = 0.0,
+    var y: Double = 0.0,
+    var z: Double = 0.0
 )
 
 class Euler(
-    var x: Double,
-    var y: Double,
-    var z: Double,
+    var x: Double = 0.0,
+    var y: Double = 0.0,
+    var z: Double = 0.0,
     var repr: String = "deg"
 )
 
 class Transform(
     val name: String,
-    val position: Vector3,
-    val rotation: Euler,
-    val geometries: List<Geometry>
+    val position: Vector3 = Vector3(),
+    val rotation: Euler = Euler(),
+    val geometries: List<Geometry> = listOf()
 ) {
 
     fun toMap(setup: Boolean): Map<String, Any> {
@@ -50,25 +50,27 @@ class Geometry(
     val shape: Shape
 ) {
 
-    val color: Int = 0x808080
-    val opacity: Float = 1f
-    val wireframe: Boolean = false
+    var color: Int = 0x808080
+    var opacity: Float = 1f
+    var wireframe: Boolean = false
 
 }
 
-sealed class Shape
+open class Shape {
+    val type: String = javaClass.simpleName.lowercase()
+}
 
 class Sphere(
-    val radius: Float
+    val radius: Float = 0.5f
 ) : Shape()
 
 class Cylinder(
-    val radius: Float,
-    val height: Float
+    val radius: Float = 1f,
+    val height: Float = 0.5f
 ) : Shape()
 
 class Box(
-    val xExtent: Float,
-    val yExtent: Float,
-    val zExtent: Float
+    val xExtent: Float = 1f,
+    val yExtent: Float = 1f,
+    val zExtent: Float = 1f
 ) : Shape()

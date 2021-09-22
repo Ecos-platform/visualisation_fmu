@@ -89,19 +89,19 @@ function createTrimeshFromSource(shape, callback) {
 function createMesh(shape, mat, callback) {
     switch (shape.type) {
         case "plane":
-            callback(createPlane(shape.data, mat))
+            callback(createPlane(shape, mat))
             break
         case "box":
-            callback(createBox(shape.data, mat))
+            callback(createBox(shape, mat))
             break
         case "sphere":
-            callback(createSphere(shape.data, mat))
+            callback(createSphere(shape, mat))
             break
         case "cylinder":
-            callback(createCylinder(shape.data, mat))
+            callback(createCylinder(shape, mat))
             break
         case "capsule":
-            callback(createCapsule(shape.data, mat))
+            callback(createCapsule(shape, mat))
             break
         case "trimesh":
             callback(createTrimesh(shape.data, mat))
