@@ -55,7 +55,7 @@ fun createConfig(): String {
                     Geometry(Sphere()).apply { color = 0xff0000 }
                     )),
             Transform(
-                "t2", parent = "t1", position = Vector3(2.0, 1.0, -2.0), geometry = (
+                "t2", parent = "t1", position = Vector3(2.0, 0.0, 0.0), geometry = (
                         Geometry(Box())
                         )
             )),
