@@ -59,6 +59,7 @@ fun createConfig(): String {
                         Geometry(Box())
                         )
             )),
+        water = Water(),
         camera = Camera(position = Vector3(0.0,0.0, -20.0), target = "t1")
     ).let { Gson().newBuilder().setPrettyPrinting().create().toJson(it) }
 

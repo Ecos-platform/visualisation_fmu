@@ -225,7 +225,7 @@ class VisualisationFmu(
     }
 
     private companion object {
-        private const val MAX_UPDATE_RATE = 1.0 / 60
+        private const val MAX_UPDATE_RATE = 1.0 / 120
 
         private val hostName by lazy {
             var hostAddress: String? = "127.0.0.1"

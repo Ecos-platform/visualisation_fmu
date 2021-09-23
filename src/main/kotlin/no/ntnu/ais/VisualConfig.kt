@@ -31,8 +31,8 @@ class Camera(
 )
 
 class Water(
-    val width: Int,
-    val height: Int
+    val width: Int = 512,
+    val height: Int = 512
 )
 
 class Vector3(

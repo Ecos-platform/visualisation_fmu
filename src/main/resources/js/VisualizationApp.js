@@ -160,6 +160,30 @@ class VisualizationApp {
             this.updateProjectionMatrix()
         }
 
+        if (config.water) {
+
+            const waterGeometry = new THREE.PlaneGeometry(config.water.width, config.water.height);
+            this.water = new THREE.Water(
+                waterGeometry,
+                {
+                    textureWidth: 512,
+                    textureHeight: 512,
+                    waterNormals: new THREE.TextureLoader().load('/textures/waternormals.jpg', function (texture) {
+                        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                    }),
+                    alpha: 1.0,
+                    sunDirection: new THREE.Vector3(),
+                    sunColor: 0xffffff,
+                    waterColor: 0x001e0f,
+                    distortionScale: 3.7,
+                    fog: this.scene.fog !== undefined
+                }
+            );
+
+            this.water.rotation.x = -Math.PI / 2;
+            this.scene.add(this.water)
+        }
+
         //     case "trail":
         //         mat = new THREE.LineBasicMaterial({
         //             color: data.color
