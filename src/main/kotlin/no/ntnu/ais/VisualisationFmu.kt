@@ -1,6 +1,7 @@
 package no.ntnu.ais
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
@@ -51,8 +52,27 @@ class VisualisationFmu(
     override fun registerVariables() {
 
         register(string("changeCommand") { "" }.setter {
+            val cmd = JsonFrame.fromJson(it)
+            when (cmd.action) {
+                "colorChanged" -> {
+                    val data = cmd.data as Map<String, Any>
+                    val name = data["name"] as String
+                    val color = (data["color"] as Number).toInt()
+                    val transform = visualConfig?.transforms?.find { it.name == name }
+                    transform?.geometry?.color = color
 
-        })
+                    sendSubs(
+                        JsonFrame(
+                            action = "colorChanged",
+                            data = mapOf(
+                                "name" to name,
+                                "color" to color
+                            )
+                        )
+                    )
+                }
+            }
+        }.causality(Fmi2Causality.parameter).variability(Fmi2Variability.tunable))
 
         for (i in 0..1000) {
 
@@ -215,3 +235,26 @@ class VisualisationFmu(
     }
 
 }
+
+internal class JsonFrame(
+    val action: String,
+    val data: Any? = null
+) {
+
+    fun toJson() = gson.toJson(this)
+
+    companion object {
+
+        fun fromJson(str: String): JsonFrame {
+            return gson.fromJson(str, JsonFrame::class.java)
+        }
+
+        private val gson = GsonBuilder()
+            .serializeNulls()
+            .setPrettyPrinting()
+            .create()
+
+    }
+
+}
+

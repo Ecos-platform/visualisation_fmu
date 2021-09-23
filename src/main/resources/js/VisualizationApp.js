@@ -110,8 +110,6 @@ class VisualizationApp {
     setup(transforms) {
 
         let mat;
-        console.log(transforms)
-
         for (let key in transforms) {
 
             const transform = transforms[key]
@@ -123,10 +121,9 @@ class VisualizationApp {
             obj.position.y = transform.position.y
             obj.position.z = transform.position.z
 
-            for (let i = 0; i < transform.geometries.length; i++) {
 
-                let geometry = transform.geometries[i]
-
+            let geometry = transform.geometry
+            if (geometry) {
                 // obj.visible = data.visible
                 mat = new THREE.MeshBasicMaterial({
                     color: geometry.color,
@@ -144,7 +141,6 @@ class VisualizationApp {
                     console.log(mesh)
                     obj.add(mesh)
                 })
-
             }
 
                 //     case "geometry":
@@ -211,7 +207,6 @@ class VisualizationApp {
 
             this.scene.add(obj)
             this.objects[transform.name] = obj
-            console.log(obj)
         }
         this.update(transforms)
     }
@@ -258,7 +253,6 @@ class VisualizationApp {
                     trail.line.geometry = geometry
                     geometry.attributes.position.needsUpdate = true
                 } else {
-                    console.log(points)
                     trail.line = new THREE.Line(geometry, trail.mat)
                     this.scene.add(trail.line)
                 }

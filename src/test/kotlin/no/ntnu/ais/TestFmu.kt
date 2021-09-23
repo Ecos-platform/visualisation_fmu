@@ -19,13 +19,26 @@ fun main(args: Array<String>) {
     }
 
     var t = 0.0
-    val dt = 0.1
+    var t0 = System.currentTimeMillis()
+    var colorChanged = false
     while (true) {
+
+        val dt = (System.currentTimeMillis() - t0).toDouble() / 1000
+        t0 = System.currentTimeMillis()
 
         val h = sine(t)
         fmu.setReal(longArrayOf(1), doubleArrayOf(h))
         fmu.doStep(t, dt)
         t+=dt
+
+        if (!colorChanged && t > 10) {
+            colorChanged = true
+            val payload = JsonFrame("colorChanged", mapOf(
+                "name" to "t2",
+                "color" to 0x00ff00
+            )).toJson()
+            fmu.setString(longArrayOf(1), arrayOf(payload))
+        }
 
         Thread.sleep(10)
     }
@@ -35,10 +48,10 @@ fun main(args: Array<String>) {
 fun createConfig(): String {
 
     return VisualConfig(listOf(
-        Transform("t1", geometries = listOf(
+        Transform("t1", geometry = (
             Geometry(Sphere()).apply { color = 0xff0000 }
         )),
-        Transform("t2", Vector3(10.0, 1.0, -5.0), geometries = listOf(
+        Transform("t2", Vector3(10.0, 1.0, -5.0), geometry = (
             Geometry(Box())
         ))
     )).let { Gson().newBuilder().setPrettyPrinting().create().toJson(it) }
