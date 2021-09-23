@@ -74,7 +74,7 @@ class VisualisationFmu(
             }
         }.causality(Fmi2Causality.parameter).variability(Fmi2Variability.tunable))
 
-        for (i in 0..1000) {
+        for (i in 0..100) {
 
             register(real("transform[$i].position.x") { visualConfig?.transforms?.getOrNull(i)?.position?.x ?: 0.0 }
                 .setter { v -> visualConfig?.transforms?.getOrNull(i)?.position?.apply { x = v } }
@@ -84,6 +84,16 @@ class VisualisationFmu(
                 .causality(Fmi2Causality.input))
             register(real("transform[$i].position.z") { visualConfig?.transforms?.getOrNull(i)?.position?.x ?: 0.0 }
                 .setter { v -> visualConfig?.transforms?.getOrNull(i)?.position?.apply { z = v } }
+                .causality(Fmi2Causality.input))
+
+            register(real("transform[$i].rotation.x") { visualConfig?.transforms?.getOrNull(i)?.rotation?.x ?: 0.0 }
+                .setter { v -> visualConfig?.transforms?.getOrNull(i)?.rotation?.apply { x = v } }
+                .causality(Fmi2Causality.input))
+            register(real("transform[$i].rotation.y") { visualConfig?.transforms?.getOrNull(i)?.rotation?.y ?: 0.0 }
+                .setter { v -> visualConfig?.transforms?.getOrNull(i)?.rotation?.apply { y = v } }
+                .causality(Fmi2Causality.input))
+            register(real("transform[$i].rotation.z") { visualConfig?.transforms?.getOrNull(i)?.rotation?.z ?: 0.0 }
+                .setter { v -> visualConfig?.transforms?.getOrNull(i)?.rotation?.apply { z = v } }
                 .causality(Fmi2Causality.input))
 
         }

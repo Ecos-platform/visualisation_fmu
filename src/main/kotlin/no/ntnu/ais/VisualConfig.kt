@@ -3,15 +3,37 @@ package no.ntnu.ais
 const val DEFAULT_COLOR = 0x808080
 
 class VisualConfig(
-    val transforms: List<Transform>
+    val transforms: List<Transform>,
+    val camera: Camera = Camera(),
+    val water: Water? = null
+
 ) {
 
-    fun toMap(setup: Boolean): List<Map<String, Any>> {
+    fun toMap(setup: Boolean): Map<String, Any?> {
+        val map = mutableMapOf<String, Any?>(
+            "transforms" to transforms.map { it.toMap(setup) }
+        )
 
-        return transforms.map { it.toMap(setup) }
+        if (setup) {
+            map["water"] = water
+            map["camera"] = camera
+        }
+
+        return map
     }
 
 }
+
+class Camera(
+    val position: Vector3 = Vector3(45.0, 45.0, 45.0),
+    val fov: Int? = null,
+    val target: String? = null
+)
+
+class Water(
+    val width: Int,
+    val height: Int
+)
 
 class Vector3(
     var x: Double = 0.0,
@@ -28,19 +50,21 @@ class Euler(
 
 class Transform(
     val name: String,
+    val parent: String? = null,
     val position: Vector3 = Vector3(),
     val rotation: Euler = Euler(),
     val geometry: Geometry? = null
 ) {
 
-    fun toMap(setup: Boolean): Map<String, Any> {
-        val map = mutableMapOf(
+    fun toMap(setup: Boolean): Map<String, Any?> {
+        val map = mutableMapOf<String, Any?>(
             "name" to name,
             "position" to position,
             "rotation" to rotation
         )
 
-        if (setup && geometry != null) {
+        if (setup) {
+            map["parent"] = parent
             map["geometry"] = geometry
         }
 
@@ -76,4 +100,8 @@ class Box(
     val xExtent: Float = 1f,
     val yExtent: Float = 1f,
     val zExtent: Float = 1f
+) : Shape()
+
+class Trimesh(
+    val source: String
 ) : Shape()

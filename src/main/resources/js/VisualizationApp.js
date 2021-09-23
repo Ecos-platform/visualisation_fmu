@@ -4,6 +4,7 @@ class VisualizationApp {
 
         let that = this
         this.water = undefined
+        this.follow = false
         this.objects = {}
         this.trailObjects = []
         this.MAX_LINE_POINTS = 5000
@@ -25,7 +26,7 @@ class VisualizationApp {
         this.scene.add(new THREE.AmbientLight())
 
         this.camera = new THREE.PerspectiveCamera(75, this.container.clientWidth / this.container.clientHeight, 0.1, 1000);
-        this.camera.position.set(50, 50, 50)
+        // this.camera.position.set(50, 50, 50)
 
         this.renderer = new THREE.WebGLRenderer({antialiasing: true});
         this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
@@ -66,7 +67,7 @@ class VisualizationApp {
                     }, 50)
                     break
                 case "update":
-                    that.update(payload.data)
+                    that.update(payload.data.transforms)
                     that.updateStats.update()
                     break
                 case "visibilityChanged":
@@ -107,22 +108,22 @@ class VisualizationApp {
 
     }
 
-    setup(transforms) {
+    setup(config) {
 
-        let mat;
-        for (let key in transforms) {
-
-            const transform = transforms[key]
+        let mat
+        let that = this
+        config.transforms.forEach(function (t) {
 
             let obj = new THREE.Object3D()
-            obj.name = transform.name
+            obj.name = t.name
 
-            obj.position.x = transform.position.x
-            obj.position.y = transform.position.y
-            obj.position.z = transform.position.z
+            obj.position.set(t.position.x, t.position.y, t.position.z)
 
+            obj.rotation.x = t.rotation.x
+            obj.rotation.y = t.rotation.y
+            obj.rotation.z = t.rotation.z
 
-            let geometry = transform.geometry
+            let geometry = t.geometry
             if (geometry) {
                 // obj.visible = data.visible
                 mat = new THREE.MeshBasicMaterial({
@@ -138,102 +139,80 @@ class VisualizationApp {
                     if (geometry.offset) {
                         mesh.matrix.elements = geometry.offset
                     }
-                    console.log(mesh)
                     obj.add(mesh)
                 })
             }
 
-                //     case "geometry":
-                //         obj.visible = data.visible
-                //         mat = new THREE.MeshBasicMaterial({
-                //             color: data.color,
-                //             wireframe: data.wireframe
-                //         })
-                //         if (data.opacity < 1) {
-                //             mat.opacity = data.opacity
-                //             mat.transparent = true
-                //         }
-                //         createMesh(data.shape, mat, function (mesh) {
-                //             mesh.matrixAutoUpdate = false
-                //             if (data.offset) {
-                //                 mesh.matrix.elements = data.offset
-                //             }
-                //             obj.add(mesh)
-                //         })
-                //         break
-                //     case "water":
-                //         const waterGeometry = new THREE.PlaneGeometry(data.width, data.height);
-                //         this.water = new THREE.Water(
-                //             waterGeometry,
-                //             {
-                //                 textureWidth: 512,
-                //                 textureHeight: 512,
-                //                 waterNormals: new THREE.TextureLoader().load('/textures/waternormals.jpg', function (texture) {
-                //                     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                //                 }),
-                //                 alpha: 1.0,
-                //                 sunDirection: new THREE.Vector3(),
-                //                 sunColor: 0xffffff,
-                //                 waterColor: 0x001e0f,
-                //                 distortionScale: 3.7,
-                //                 fog: this.scene.fog !== undefined
-                //             }
-                //         );
-                //
-                //         this.water.rotation.x = -Math.PI / 2;
-                //         obj.add(this.water)
-                //         break
-                //     case "camera":
-                //         this.camera.fov = data.fov
-                //         this.camera.position.x = components["transform"].position.x
-                //         this.camera.position.y = components["transform"].position.y
-                //         this.camera.position.z = components["transform"].position.z
-                //         this.controls.update()
-                //         this.updateProjectionMatrix()
-                //         break
-                //     case "trail":
-                //         mat = new THREE.LineBasicMaterial({
-                //             color: data.color
-                //         })
-                //         obj.userData.trail = {
-                //             "points": [],
-                //             "mat": mat,
-                //             "line": undefined
-                //         }
-                //         this.trailObjects.push(obj)
-                //         break
-                // }
-            // }
+            that.scene.add(obj)
+            that.objects[t.name] = obj
+        })
 
-            this.scene.add(obj)
-            this.objects[transform.name] = obj
+        if (config.camera) {
+            if (config.camera.fov) {
+                this.camera.fov = config.camera.fov
+            }
+            this.camera.position.set(config.camera.position.x, config.camera.position.y, config.camera.position.z)
+            if (config.camera.target) {
+                this.follow = true
+                this.controls.target = this.objects[config.camera.target].position
+            }
+            this.controls.update()
+            this.updateProjectionMatrix()
         }
-        this.update(transforms)
+
+        //     case "trail":
+        //         mat = new THREE.LineBasicMaterial({
+        //             color: data.color
+        //         })
+        //         obj.userData.trail = {
+        //             "points": [],
+        //             "mat": mat,
+        //             "line": undefined
+        //         }
+        //         this.trailObjects.push(obj)
+        //         break
+        // }
+        // }
+
+        // }
+
+        config.transforms.forEach(function (t) {
+            if (t.parent) {
+                that.objects[t.parent].add(that.objects[t.name])
+            }
+        })
+
+        this.update(config.transforms)
     }
 
     update(transforms) {
-        for (let key in transforms) {
-            const transform = transforms[key]
-            let obj = this.objects[transform.name]
+        let that = this
+        transforms.forEach(function (t) {
+            let obj = that.objects[t.name]
             if (obj) {
 
-                obj.position.x = transform.position.x
-                obj.position.y = transform.position.y
-                obj.position.z = transform.position.z
+                obj.position.set(t.position.x, t.position.y, t.position.z)
                 // obj.quaternion.x = data.quaternion.x
                 // obj.quaternion.y = data.quaternion.y
                 // obj.quaternion.z = data.quaternion.z
                 // obj.quaternion.w = data.quaternion.w
 
             }
-        }
+        })
     }
 
     animate = () => {
+
         requestAnimationFrame(this.animate);
+
         if (this.water) {
             this.water.material.uniforms['time'].value += 1.0 / 60.0;
         }
+
+        if (this.follow) {
+            this.controls.update()
+        }
+
         const elapsed = this.clock.getElapsedTime()
         if (elapsed > 1.0 / 20) {
             for (let i = 0; i < this.trailObjects.length; i++) {
@@ -261,6 +240,7 @@ class VisualizationApp {
         }
         this.renderer.render(this.scene, this.camera)
         this.fpsStats.update()
+
     };
 
 }

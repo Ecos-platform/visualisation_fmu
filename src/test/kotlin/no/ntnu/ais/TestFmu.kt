@@ -15,7 +15,7 @@ fun main(args: Array<String>) {
     fmu.exitInitialisationMode()
 
     fun sine(t: Double): Double {
-        return 2.0 * sin(2* PI* 0.1 * t)
+        return 10.0 * sin(2 * PI * 0.1 * t)
     }
 
     var t = 0.0
@@ -29,14 +29,16 @@ fun main(args: Array<String>) {
         val h = sine(t)
         fmu.setReal(longArrayOf(1), doubleArrayOf(h))
         fmu.doStep(t, dt)
-        t+=dt
+        t += dt
 
-        if (!colorChanged && t > 10) {
+        if (!colorChanged && t > 5) {
             colorChanged = true
-            val payload = JsonFrame("colorChanged", mapOf(
-                "name" to "t2",
-                "color" to 0x00ff00
-            )).toJson()
+            val payload = JsonFrame(
+                "colorChanged", mapOf(
+                    "name" to "t2",
+                    "color" to 0x00ff00
+                )
+            ).toJson()
             fmu.setString(longArrayOf(1), arrayOf(payload))
         }
 
@@ -47,14 +49,18 @@ fun main(args: Array<String>) {
 
 fun createConfig(): String {
 
-    return VisualConfig(listOf(
-        Transform("t1", geometry = (
-            Geometry(Sphere()).apply { color = 0xff0000 }
-        )),
-        Transform("t2", Vector3(10.0, 1.0, -5.0), geometry = (
-            Geometry(Box())
-        ))
-    )).let { Gson().newBuilder().setPrettyPrinting().create().toJson(it) }
+    return VisualConfig(
+        transforms = listOf(
+            Transform("t1", geometry = (
+                    Geometry(Sphere()).apply { color = 0xff0000 }
+                    )),
+            Transform(
+                "t2", parent = "t1", position = Vector3(2.0, 1.0, -2.0), geometry = (
+                        Geometry(Box())
+                        )
+            )),
+        camera = Camera(position = Vector3(0.0,0.0, -20.0), target = "t1")
+    ).let { Gson().newBuilder().setPrettyPrinting().create().toJson(it) }
 
 }
 
