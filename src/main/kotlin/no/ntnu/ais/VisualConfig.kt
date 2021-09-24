@@ -1,5 +1,10 @@
 package no.ntnu.ais
 
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
+import java.lang.reflect.Type
+
 const val DEFAULT_COLOR = 0x808080
 
 class VisualConfig(
@@ -65,7 +70,7 @@ class Transform(
 
         if (setup) {
             map["parent"] = parent
-            map["geometry"] = geometry
+            map["geometry"] = geometry?.toMap()
         }
 
         return map
@@ -74,34 +79,47 @@ class Transform(
 }
 
 class Geometry(
-    val shape: Shape
+    val shape: Shape,
+    var color: Int = DEFAULT_COLOR,
+    var opacity: Float = 1f,
+    var wireframe: Boolean = false
 ) {
 
-    var color: Int = DEFAULT_COLOR
-    var opacity: Float = 1f
-    var wireframe: Boolean = false
+    fun toMap(): Map<String, Any> {
+        return mapOf(
+            "color" to color,
+            "opacity" to opacity,
+            "wireframe" to wireframe,
+            "shape" to shape
+        )
+    }
 
 }
 
-open class Shape {
-    val type: String = javaClass.simpleName.lowercase()
+class GeometryDeserializer: JsonDeserializer<Geometry> {
+
+    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Geometry {
+
+        return json.asJsonObject.let { obj ->
+            val color = obj.get("color")?.asInt ?: DEFAULT_COLOR
+            val shape = obj.get("shape").asJsonObject
+            when(val type = shape.get("type")?.asString) {
+                "sphere" -> {
+                    Sphere(shape.get("radius").asFloat)
+                }
+                "box" -> {
+                    Box(shape.get("width").asFloat, shape.get("height").asFloat, shape.get("depth").asFloat)
+                }
+                "mesh" -> {
+                    Mesh(shape.get("source").asString)
+                }
+                else -> throw UnsupportedOperationException(type)
+            }.let {
+
+                Geometry(it,color = color)
+            }
+
+        }
+
+    }
 }
-
-class Sphere(
-    val radius: Float = 0.5f
-) : Shape()
-
-class Cylinder(
-    val radius: Float = 1f,
-    val height: Float = 0.5f
-) : Shape()
-
-class Box(
-    val xExtent: Float = 1f,
-    val yExtent: Float = 1f,
-    val zExtent: Float = 1f
-) : Shape()
-
-class Trimesh(
-    val source: String
-) : Shape()

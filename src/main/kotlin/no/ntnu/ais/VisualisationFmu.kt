@@ -51,28 +51,10 @@ class VisualisationFmu(
 
     override fun registerVariables() {
 
-        register(string("changeCommand") { "" }.setter {
-            val cmd = JsonFrame.fromJson(it)
-            when (cmd.action) {
-                "colorChanged" -> {
-                    val data = cmd.data as Map<String, Any>
-                    val name = data["name"] as String
-                    val color = (data["color"] as Number).toInt()
-                    val transform = visualConfig?.transforms?.find { it.name == name }
-                    transform?.geometry?.color = color
-
-                    sendSubs(
-                        JsonFrame(
-                            action = "colorChanged",
-                            data = mapOf(
-                                "name" to name,
-                                "color" to color
-                            )
-                        )
-                    )
-                }
-            }
-        }.causality(Fmi2Causality.parameter).variability(Fmi2Variability.tunable))
+        register(
+            string("changeCommand") { "" }.setter(::handleChangeCommand)
+                .causality(Fmi2Causality.parameter).variability(Fmi2Variability.tunable)
+        )
 
         for (i in 0..100) {
 
@@ -113,7 +95,9 @@ class VisualisationFmu(
 
     override fun exitInitialisationMode() {
 
-        visualConfig = Gson().fromJson(config, VisualConfig::class.java)
+        visualConfig = Gson().newBuilder()
+            .registerTypeAdapter(Geometry::class.java, GeometryDeserializer()).create()
+            .fromJson(config, VisualConfig::class.java)
 
         app = embeddedServer(Netty, port = port) {
 
@@ -224,6 +208,29 @@ class VisualisationFmu(
         }
     }
 
+    fun handleChangeCommand(str: String) {
+        val cmd = JsonFrame.fromJson(str)
+        when (cmd.action) {
+            "colorChanged" -> {
+                val data = cmd.data as Map<String, Any>
+                val name = data["name"] as String
+                val color = (data["color"] as Number).toInt()
+                val transform = visualConfig?.transforms?.find { it.name == name }
+                transform?.geometry?.color = color
+
+                sendSubs(
+                    JsonFrame(
+                        action = "colorChanged",
+                        data = mapOf(
+                            "name" to name,
+                            "color" to color
+                        )
+                    )
+                )
+            }
+        }
+    }
+
     private companion object {
         private const val MAX_UPDATE_RATE = 1.0 / 120
 
@@ -262,9 +269,9 @@ internal class JsonFrame(
         private val gson = GsonBuilder()
             .serializeNulls()
             .setPrettyPrinting()
+            .registerTypeAdapter(Geometry::class.java, GeometryDeserializer())
             .create()
 
     }
 
 }
-

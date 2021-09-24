@@ -70,10 +70,14 @@ function createTrimesh(shape, callback) {
         case "obj":
             loadObj(shape, callback)
             break
+        default:
+            console.error("Unsupported trimesh extension: " + ext)
+            break
     }
 }
 
 function createMesh(shape, mat, callback) {
+    console.log(shape)
     switch (shape.type) {
         case "plane":
             callback(createPlane(shape, mat))
@@ -90,8 +94,8 @@ function createMesh(shape, mat, callback) {
         case "capsule":
             callback(createCapsule(shape, mat))
             break
-        case "trimesh":
-            createTrimesh(shape.data, callback)
+        case "mesh":
+            createTrimesh(shape, callback)
             break
     }
 }

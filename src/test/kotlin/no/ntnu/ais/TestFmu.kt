@@ -1,6 +1,7 @@
 package no.ntnu.ais
 
 import com.google.gson.Gson
+import java.io.File
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -15,7 +16,7 @@ fun main(args: Array<String>) {
     fmu.exitInitialisationMode()
 
     fun sine(t: Double): Double {
-        return 10.0 * sin(2 * PI * 0.1 * t)
+        return 5.0 * sin(2 * PI * 0.1 * t)
     }
 
     var t = 0.0
@@ -52,15 +53,20 @@ fun createConfig(): String {
     return VisualConfig(
         transforms = listOf(
             Transform("t1", geometry = (
-                    Geometry(Sphere()).apply { color = 0xff0000 }
+                    Geometry(Sphere(), color = 0xff0000)
                     )),
             Transform(
-                "t2", parent = "t1", position = Vector3(2.0, 0.0, 0.0), geometry = (
+                "t2", parent = "t1", position = Vector3(0.0, 10.0, 0.0), geometry = (
                         Geometry(Box())
                         )
+            ),
+            Transform(
+                "tt", position = Vector3(30.0, 0.0, 0.0), geometry = (
+                        Geometry(Mesh(File("C:\\Users\\laht\\dev\\Vico\\examples\\gunnerus\\obj\\Gunnerus.obj").absolutePath))
+                        )
             )),
-        water = Water(),
-        camera = Camera(position = Vector3(0.0,0.0, -20.0), target = "t1")
+        water = Water(64, 64),
+        camera = Camera(position = Vector3(0.0,5.0, -20.0))
     ).let { Gson().newBuilder().setPrettyPrinting().create().toJson(it) }
 
 }
