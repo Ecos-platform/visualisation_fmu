@@ -43,8 +43,6 @@ gradle.properties
 out/
 build/
 
-schema/
-
 *.iml
 
 *.csv

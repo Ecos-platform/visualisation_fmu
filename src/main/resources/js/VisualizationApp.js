@@ -238,7 +238,7 @@ class VisualizationApp {
         }
 
         const elapsed = this.clock.getElapsedTime()
-        if (elapsed > 1.0 / 20) {
+        if (elapsed > 1.0 / 30) {
             for (let i = 0; i < this.trailObjects.length; i++) {
                 const trailObject = this.trailObjects[i]
                 const trail = trailObject.userData.trail

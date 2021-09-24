@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vico:VisualFmuConfig xmlns:vico="http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig">
+
+    <vico:CameraConfig>
+        <vico:initialPosition px="-15" py="15" pz="-25"/>
+    </vico:CameraConfig>
+
+    <vico:Transform name="t1">
+        <vico:Geometry color="navy">
+            <vico:Shape>
+                <vico:Sphere radius="0.5"/>
+            </vico:Shape>
+        </vico:Geometry>
+    </vico:Transform>
+
+    <vico:Transform name="t2" parent="t1">
+        <vico:Geometry>
+            <vico:Shape>
+                <vico:Box xExtent="1" yExtent="1" zExtent="1"/>
+            </vico:Shape>
+        </vico:Geometry>
+        <vico:Position px="5"/>
+    </vico:Transform>
+    
+</vico:VisualFmuConfig>

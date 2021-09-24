@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vico="http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig"
+           elementFormDefault="qualified"
+           targetNamespace="http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig">
+
+    <xs:element name="VisualFmuConfig" type="vico:TVisualFmuConfig"/>
+
+    <xs:complexType name="TVisualFmuConfig">
+        <xs:sequence>
+            <xs:element name="CameraConfig" type="vico:TCameraConfig" minOccurs="0"/>
+            <xs:element name="Transform" type="vico:TTransform" maxOccurs="unbounded"/>
+            <xs:element name="Water" type="vico:TWater" minOccurs="0"/>
+        </xs:sequence>
+<!--        <xs:attribute name="decimationFactor" type="xs:unsignedInt" default="1"/>-->
+    </xs:complexType>
+
+    <xs:complexType name="TCameraConfig">
+        <xs:sequence>
+            <xs:element name="initialPosition" type="vico:TPosition"/>
+        </xs:sequence>
+        <xs:attribute name="target" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="TWater">
+        <xs:attribute name="width" type="xs:int" default="64"/>
+        <xs:attribute name="height" type="xs:int" default="64"/>
+    </xs:complexType>
+
+    <xs:complexType name="TTransform">
+        <xs:sequence>
+            <xs:element name="Geometry" type="vico:TGeometry"/>
+            <xs:element name="Position" type="vico:TPosition" minOccurs="0"/>
+            <xs:element name="Rotation" type="vico:TEuler" minOccurs="0"/>
+            <xs:element name="Trail" type="vico:TTrail" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="parent" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="TGeometry">
+        <xs:sequence>
+            <xs:element name="OffsetPosition" type="vico:TPosition" minOccurs="0"/>
+            <xs:element name="OffsetRotation" type="vico:TEuler" minOccurs="0"/>
+            <xs:element name="Shape" type="vico:TShape"/>
+        </xs:sequence>
+        <xs:attribute name="color" type="xs:string" default="0x808080"/>
+        <xs:attribute name="opacity" type="xs:float" default="1"/>
+        <xs:attribute name="wireframe" type="xs:boolean" default="false"/>
+    </xs:complexType>
+
+    <xs:complexType name="TShape">
+        <xs:choice>
+            <xs:element name="Plane" type="vico:TPlane"/>
+            <xs:element name="Box" type="vico:TBox"/>
+            <xs:element name="Sphere" type="vico:TSphere"/>
+            <xs:element name="Cylinder" type="vico:TCylinder"/>
+            <xs:element name="Capsule" type="vico:TCapsule"/>
+            <xs:element name="Mesh" type="vico:TMesh"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="TSphere">
+        <xs:attribute name="radius" type="xs:float" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="TPlane">
+        <xs:attribute name="width" type="xs:float" use="required"/>
+        <xs:attribute name="height" type="xs:float" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="TBox">
+        <xs:attribute name="xExtent" type="xs:float" use="required"/>
+        <xs:attribute name="yExtent" type="xs:float" use="required"/>
+        <xs:attribute name="zExtent" type="xs:float" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="TCylinder">
+        <xs:attribute name="radius" type="xs:float" use="required"/>
+        <xs:attribute name="height" type="xs:float" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="TCapsule">
+        <xs:attribute name="radius" type="xs:float" use="required"/>
+        <xs:attribute name="height" type="xs:float" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="TMesh">
+        <xs:attribute name="source" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="TEuler">
+        <xs:attribute name="x" type="xs:float" default="0"/>
+        <xs:attribute name="y" type="xs:float" default="0"/>
+        <xs:attribute name="z" type="xs:float" default="0"/>
+        <xs:attribute name="repr" type="vico:TAngleRepr" default="deg"/>
+    </xs:complexType>
+
+    <xs:complexType name="TPosition">
+        <xs:attribute name="px" type="xs:float" default="0"/>
+        <xs:attribute name="py" type="xs:float" default="0"/>
+        <xs:attribute name="pz" type="xs:float" default="0"/>
+    </xs:complexType>
+
+    <xs:complexType name="TTrail">
+        <xs:attribute name="length" type="xs:float" default="10"/>
+        <xs:attribute name="color" type="xs:string" default="blue"/>
+    </xs:complexType>
+
+    <xs:simpleType name="TAngleRepr">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="deg"/>
+            <xs:enumeration value="rad"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>
