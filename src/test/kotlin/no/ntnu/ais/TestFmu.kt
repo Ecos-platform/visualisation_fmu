@@ -52,9 +52,11 @@ fun createConfig(): String {
 
     return VisualConfig(
         transforms = listOf(
-            Transform("t1", geometry = (
-                    Geometry(Sphere(), color = 0xff0000)
-                    )),
+            Transform(
+                "t1", geometry = (
+                        Geometry(Sphere(), color = 0xff0000)
+                        )
+            ),
             Transform(
                 "t2", parent = "t1", position = Vector3(0.0, 10.0, 0.0), geometry = (
                         Geometry(Box())
@@ -64,9 +66,10 @@ fun createConfig(): String {
                 "tt", position = Vector3(30.0, 0.0, 0.0), geometry = (
                         Geometry(Mesh(File("C:\\Users\\laht\\dev\\Vico\\examples\\gunnerus\\obj\\Gunnerus.obj").absolutePath))
                         )
-            )),
+            )
+        ),
         water = Water(64, 64),
-        camera = Camera(position = Vector3(0.0,5.0, -20.0))
+        camera = Camera(position = Vector3(0.0, 5.0, -20.0))
     ).let { Gson().newBuilder().setPrettyPrinting().create().toJson(it) }
 
 }

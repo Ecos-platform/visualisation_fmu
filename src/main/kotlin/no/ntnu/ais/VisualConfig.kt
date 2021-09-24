@@ -56,8 +56,8 @@ class Euler(
 class Transform(
     val name: String,
     val parent: String? = null,
-    val position: Vector3 = Vector3(),
-    val rotation: Euler = Euler(),
+    val position: Vector3? = null,
+    val rotation: Euler? = null,
     val geometry: Geometry? = null
 ) {
 

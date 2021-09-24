@@ -1,5 +1,7 @@
 package no.ntnu.ais
 
+import java.io.File
+
 sealed class Shape {
     val type = javaClass.simpleName.lowercase()
 }
@@ -42,5 +44,8 @@ class Heightmap(
 ) : Shape()
 
 class Mesh(
-    val source: String
-) : Shape()
+    source: String
+) : Shape() {
+
+    val source = File(source).relativeTo(File(".")).path
+}
