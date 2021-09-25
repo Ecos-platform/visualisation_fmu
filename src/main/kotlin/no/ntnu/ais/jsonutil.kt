@@ -79,6 +79,7 @@ fun TGeometry.toJsonObject(): JsonObject {
 fun TTransform.toJsonObject(setup: Boolean): JsonObject {
     val obj = JsonObject()
     obj.addProperty("name", name)
+    obj.addProperty("parent", parent)
     obj.add("position", position.toJsonObject())
     obj.add("rotation", rotation.toJsonObject())
     if (setup) {
