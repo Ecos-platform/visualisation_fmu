@@ -70,6 +70,10 @@ User defined commands can be triggered by sending JSON messages to the exposed `
 }
 ```
 
+### Building the FMU
+
+Simply run `./gradlew fmu4j`. FMU is located in `build/generated`
+
 ### Requirements
 
-The FMU is built using the JVM (JDK8), so a suitable environment is required. 
+The FMU is built using the JVM (JDK8), so a suitable run-time environment is required. 
