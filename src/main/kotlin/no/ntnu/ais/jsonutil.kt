@@ -58,9 +58,9 @@ fun TShape.toJsonObject(): JsonObject {
                 obj.addProperty("height", capsule.height)
             }
             mesh != null -> {
-                val source = File(mesh.source.lowercase(Locale.getDefault()))
+                val source = File(mesh.source)
                 obj.addProperty("type", "mesh")
-                obj.addProperty("source", source.relativeTo(File(".")).path)
+                obj.addProperty("source", if (source.isAbsolute) source.path else source.relativeTo(File(".")).path)
             }
         }
 
