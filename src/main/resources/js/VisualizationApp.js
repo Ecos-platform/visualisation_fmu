@@ -118,10 +118,7 @@ class VisualizationApp {
             obj.name = t.name
 
             obj.position.set(t.position.x, t.position.y, t.position.z)
-
-            obj.rotation.x = t.rotation.x
-            obj.rotation.y = t.rotation.y
-            obj.rotation.z = t.rotation.z
+            obj.rotation.set(t.rotation.x, t.rotation.y, t.rotation.z)
 
             let geometry = t.geometry
             if (geometry) {
@@ -212,6 +209,7 @@ class VisualizationApp {
             let obj = that.objects[t.name]
             if (obj) {
                 obj.position.set(t.position.x, t.position.y, t.position.z)
+                obj.rotation.set(t.rotation.x, t.rotation.y, t.rotation.z)
             }
         })
     }
