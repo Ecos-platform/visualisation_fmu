@@ -67,6 +67,13 @@ fun TShape.toJsonObject(): JsonObject {
     }
 }
 
+fun TTrail.toJsonObject(): JsonObject {
+    return JsonObject().also { obj ->
+        obj.addProperty("color", color.toHex())
+        obj.addProperty("maxLength", length)
+    }
+}
+
 fun TGeometry.toJsonObject(): JsonObject {
     return JsonObject().also { obj ->
         obj.addProperty("opacity", opacity)
@@ -84,6 +91,7 @@ fun TTransform.toJsonObject(setup: Boolean): JsonObject {
     obj.add("rotation", rotation.toJsonObject())
     if (setup) {
         obj.add("geometry", geometry.toJsonObject())
+        obj.add("trail", trail?.toJsonObject())
     }
     return obj
 }

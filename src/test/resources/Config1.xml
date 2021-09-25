@@ -20,6 +20,7 @@
             </vico:Shape>
         </vico:Geometry>
         <vico:Position px="5"/>
+        <vico:Trail length="2"/>
     </vico:Transform>
     
 </vico:VisualFmuConfig>

@@ -110,7 +110,7 @@ class VisualizationApp {
 
     setup(config) {
 
-        let mat
+
         let that = this
         config.transforms.forEach(function (t) {
 
@@ -126,7 +126,7 @@ class VisualizationApp {
             let geometry = t.geometry
             if (geometry) {
                 // obj.visible = data.visible
-                mat = new THREE.MeshBasicMaterial({
+                let mat = new THREE.MeshBasicMaterial({
                     color: geometry.color,
                     wireframe: geometry.wireframe
                 })
@@ -141,6 +141,19 @@ class VisualizationApp {
                     }
                     obj.add(mesh)
                 })
+            }
+
+            if (t.trail) {
+                let mat = new THREE.LineBasicMaterial({
+                    color: t.trail.color
+                })
+                obj.userData.trail = {
+                    "points": [],
+                    "mat": mat,
+                    "line": undefined,
+                    "maxLength": t.trail.maxLength
+                }
+                that.trailObjects.push(obj)
             }
 
             that.scene.add(obj)
@@ -184,22 +197,6 @@ class VisualizationApp {
             this.scene.add(this.water)
         }
 
-        //     case "trail":
-        //         mat = new THREE.LineBasicMaterial({
-        //             color: data.color
-        //         })
-        //         obj.userData.trail = {
-        //             "points": [],
-        //             "mat": mat,
-        //             "line": undefined
-        //         }
-        //         this.trailObjects.push(obj)
-        //         break
-        // }
-        // }
-
-        // }
-
         config.transforms.forEach(function (t) {
             if (t.parent) {
                 that.objects[t.parent].add(that.objects[t.name])
@@ -214,15 +211,20 @@ class VisualizationApp {
         transforms.forEach(function (t) {
             let obj = that.objects[t.name]
             if (obj) {
-
                 obj.position.set(t.position.x, t.position.y, t.position.z)
-                // obj.quaternion.x = data.quaternion.x
-                // obj.quaternion.y = data.quaternion.y
-                // obj.quaternion.z = data.quaternion.z
-                // obj.quaternion.w = data.quaternion.w
-
             }
         })
+    }
+
+    computeLength(list) {
+        if (list.length <= 2) return 0
+        let l = 0
+        let prev = list[0]
+        for (let i = 1; i < list.length; i++) {
+            l += prev.distanceTo(list[i])
+            prev = list[i]
+        }
+        return l;
     }
 
     animate = () => {
@@ -243,11 +245,17 @@ class VisualizationApp {
                 const trailObject = this.trailObjects[i]
                 const trail = trailObject.userData.trail
                 const points = trail.points
-                points.push(trailObject.position.clone())
+                points.push(trailObject.getWorldPosition(new THREE.Vector3()))
 
                 if (points.length < 2) continue
                 if (points.length > this.MAX_LINE_POINTS) {
                     points.shift()
+                }
+                if (trail.maxLength) {
+                    let it = 0
+                    while (this.computeLength(points) > trail.maxLength && it++ < 100) {
+                        points.shift()
+                    }
                 }
 
                 const geometry = new THREE.BufferGeometry().setFromPoints(points)
