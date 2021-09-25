@@ -17,11 +17,11 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;complexType name="TGeometry">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
+ *       &lt;all>
  *         &lt;element name="OffsetPosition" type="{http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig}TPosition" minOccurs="0"/>
  *         &lt;element name="OffsetRotation" type="{http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig}TEuler" minOccurs="0"/>
  *         &lt;element name="Shape" type="{http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig}TShape"/>
- *       &lt;/sequence>
+ *       &lt;/all>
  *       &lt;attribute name="color" type="{http://www.w3.org/2001/XMLSchema}string" default="0x808080" />
  *       &lt;attribute name="opacity" type="{http://www.w3.org/2001/XMLSchema}float" default="1" />
  *       &lt;attribute name="wireframe" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
@@ -34,9 +34,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TGeometry", namespace = "http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig", propOrder = {
-    "offsetPosition",
-    "offsetRotation",
-    "shape"
+
 })
 public class TGeometry {
 

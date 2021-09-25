@@ -27,22 +27,22 @@
     </xs:complexType>
 
     <xs:complexType name="TTransform">
-        <xs:sequence>
+        <xs:all>
             <xs:element name="Geometry" type="vico:TGeometry"/>
             <xs:element name="Position" type="vico:TPosition" minOccurs="0"/>
             <xs:element name="Rotation" type="vico:TEuler" minOccurs="0"/>
             <xs:element name="Trail" type="vico:TTrail" minOccurs="0"/>
-        </xs:sequence>
+        </xs:all>
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="parent" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="TGeometry">
-        <xs:sequence>
+        <xs:all>
             <xs:element name="OffsetPosition" type="vico:TPosition" minOccurs="0"/>
             <xs:element name="OffsetRotation" type="vico:TEuler" minOccurs="0"/>
             <xs:element name="Shape" type="vico:TShape"/>
-        </xs:sequence>
+        </xs:all>
         <xs:attribute name="color" type="xs:string" default="0x808080"/>
         <xs:attribute name="opacity" type="xs:float" default="1"/>
         <xs:attribute name="wireframe" type="xs:boolean" default="false"/>

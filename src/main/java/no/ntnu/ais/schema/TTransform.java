@@ -17,12 +17,12 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;complexType name="TTransform">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
+ *       &lt;all>
  *         &lt;element name="Geometry" type="{http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig}TGeometry"/>
  *         &lt;element name="Position" type="{http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig}TPosition" minOccurs="0"/>
  *         &lt;element name="Rotation" type="{http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig}TEuler" minOccurs="0"/>
  *         &lt;element name="Trail" type="{http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig}TTrail" minOccurs="0"/>
- *       &lt;/sequence>
+ *       &lt;/all>
  *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="parent" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
@@ -34,10 +34,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TTransform", namespace = "http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig", propOrder = {
-    "geometry",
-    "position",
-    "rotation",
-    "trail"
+
 })
 public class TTransform {
 
