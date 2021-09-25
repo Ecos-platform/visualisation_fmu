@@ -32,6 +32,8 @@ import java.net.URL
 import java.util.*
 import javax.xml.bind.JAXB
 
+private const val NUM_TRANSFORMS = 50
+
 class VisualisationFmu(
     args: Map<String, Any>
 ) : Fmi2Slave(args) {
@@ -69,7 +71,7 @@ class VisualisationFmu(
                 .causality(Fmi2Causality.parameter).variability(Fmi2Variability.tunable)
         )
 
-        for (i in 0..50) {
+        for (i in 0..NUM_TRANSFORMS) {
 
             register(real("transform[$i].position.x") { getTransform(i)?.position?.px?.toDouble() ?: 0.0 }
                 .setter { v -> getTransform(i)?.position?.apply { px = v.toFloat() } }
