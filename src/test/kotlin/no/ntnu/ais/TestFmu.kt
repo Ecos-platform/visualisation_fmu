@@ -3,12 +3,12 @@ package no.ntnu.ais
 import kotlin.math.PI
 import kotlin.math.sin
 
-object Demo {
+object TestFmu {
 
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val configPath = Demo::class.java.classLoader.getResource("Config1.xml")!!.file
+        val configPath = TestFmu::class.java.classLoader.getResource("Test.xml")!!.file
 
         val fmu = VisualisationFmu(mapOf("instanceName" to "instance"))
         fmu.__define__()

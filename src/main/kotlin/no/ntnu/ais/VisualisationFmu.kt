@@ -129,7 +129,7 @@ class VisualisationFmu(
                 }
 
                 get("/assets") {
-                    val file = File(call.request.queryString())
+                    val file = File(call.request.queryString().replace("%20", " "))
                     if (file.exists()) {
                         call.respondFile(file)
                     }

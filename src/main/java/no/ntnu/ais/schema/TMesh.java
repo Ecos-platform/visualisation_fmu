@@ -17,6 +17,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;attribute name="source" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="scale" type="{http://www.w3.org/2001/XMLSchema}float" default="1" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -30,6 +31,8 @@ public class TMesh {
 
     @XmlAttribute(name = "source", required = true)
     protected String source;
+    @XmlAttribute(name = "scale")
+    protected Float scale;
 
     /**
      * Gets the value of the source property.
@@ -53,6 +56,34 @@ public class TMesh {
      */
     public void setSource(String value) {
         this.source = value;
+    }
+
+    /**
+     * Gets the value of the scale property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Float }
+     *     
+     */
+    public float getScale() {
+        if (scale == null) {
+            return  1.0F;
+        } else {
+            return scale;
+        }
+    }
+
+    /**
+     * Sets the value of the scale property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Float }
+     *     
+     */
+    public void setScale(Float value) {
+        this.scale = value;
     }
 
 }

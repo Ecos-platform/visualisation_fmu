@@ -86,6 +86,7 @@
 
     <xs:complexType name="TMesh">
         <xs:attribute name="source" type="xs:string" use="required"/>
+        <xs:attribute name="scale" type="xs:float" default="1"/>
     </xs:complexType>
 
     <xs:complexType name="TEuler">

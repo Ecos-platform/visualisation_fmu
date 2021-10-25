@@ -21,6 +21,7 @@ function createCapsule(shape, mat) {
 
 function loadObj(shape, callback) {
 
+    const scale = shape.scale || 1;
     const source = shape.source.replace(/\\/g, "/")
     const objLoader = new THREE.OBJLoader()
 
@@ -41,6 +42,7 @@ function loadObj(shape, callback) {
 
     let load = function (hasMtl) {
         objLoader.load("/assets?" + source, function (obj) {
+            obj.scale.set(scale, scale, scale)
             callback(obj)
         })
     }
