@@ -29,11 +29,13 @@ import java.io.File
 import java.io.IOException
 import java.net.URI
 import java.net.URL
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.*
 import javax.xml.bind.JAXB
 
 private const val NUM_TRANSFORMS = 50
-private const val MAX_FILE_SIZE = 50*8*1000000 // 50 MB
+private const val MAX_FILE_SIZE = 50 * 8 * 1000000 // 50 MB
 private val supportedFormats = listOf("obj", "mtl", "stl", "gltf", "glb", "jpg", "png", "dds")
 
 class VisualisationFmu(
@@ -60,8 +62,12 @@ class VisualisationFmu(
     private fun getTransform(index: Int): TTransform? {
         val transform = visualConfig?.transform?.getOrNull(index)
         transform?.apply {
-            if (position == null) { position = TPosition() }
-            if (rotation == null) { rotation = TEuler() }
+            if (position == null) {
+                position = TPosition()
+            }
+            if (rotation == null) {
+                rotation = TEuler()
+            }
         }
         return transform
     }
@@ -110,10 +116,16 @@ class VisualisationFmu(
         }
     }
 
+    private fun isChild(child: Path, parentText: String): Boolean {
+        val parent: Path = Paths.get(parentText).toAbsolutePath()
+        return child.toAbsolutePath().startsWith(parent)
+    }
+
     override fun exitInitialisationMode() {
 
         require(configPath.isNotEmpty())
-        visualConfig = JAXB.unmarshal(File(configPath).absoluteFile, TVisualFmuConfig::class.java)
+        val visualConfig = JAXB.unmarshal(File(configPath).absoluteFile, TVisualFmuConfig::class.java)
+        this.visualConfig = visualConfig
 
         app = embeddedServer(Netty, port = port) {
 
@@ -133,9 +145,16 @@ class VisualisationFmu(
                     }
                 }
 
+                val files = visualConfig.transform.mapNotNull { it.geometry?.shape?.mesh?.source?.let { File(it).absoluteFile } }
+
                 get("/assets") {
+
                     val file = File(call.request.queryString().replace("%20", " "))
                     if (file.exists()) {
+                        val child = files.find { isChild(file.toPath(), it.parentFile.absolutePath) } != null
+                        if (!child) {
+                            call.response.status(HttpStatusCode.BadRequest)
+                        }
                         if (file.length() > MAX_FILE_SIZE) {
                             call.response.status(HttpStatusCode.BadRequest)
                         }
