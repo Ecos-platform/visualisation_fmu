@@ -4,7 +4,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import no.ntnu.ais.schema.*
 import java.io.File
-import java.util.*
 
 fun TPosition?.toJsonObject(): JsonObject {
     return JsonObject().also { obj ->
@@ -55,11 +54,13 @@ fun TShape.toJsonObject(): JsonObject {
             capsule != null -> {
                 obj.addProperty("type", "capsule")
                 obj.addProperty("radius", capsule.radius)
+                obj.addProperty("radius", capsule.radius)
                 obj.addProperty("height", capsule.height)
             }
             mesh != null -> {
                 val source = File(mesh.source)
                 obj.addProperty("type", "mesh")
+                obj.addProperty("scale", mesh.scale)
                 obj.addProperty("source", if (source.isAbsolute) source.path else source.relativeTo(File(".")).path)
             }
         }
@@ -76,6 +77,8 @@ fun TTrail.toJsonObject(): JsonObject {
 
 fun TGeometry.toJsonObject(): JsonObject {
     return JsonObject().also { obj ->
+        obj.add("offsetPosition", offsetPosition.toJsonObject())
+        obj.add("offsetRotation", offsetRotation.toJsonObject())
         obj.addProperty("opacity", opacity)
         obj.addProperty("wireframe", isWireframe)
         obj.addProperty("color", color.toHex())

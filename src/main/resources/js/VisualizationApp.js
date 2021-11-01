@@ -114,15 +114,17 @@ class VisualizationApp {
         let that = this
         config.transforms.forEach(function (t) {
 
-            let obj = new THREE.Object3D()
-            obj.name = t.name
+            let parent = new THREE.Object3D()
+            parent.name = t.name
+            parent.position.set(t.position.x, t.position.y, t.position.z)
+            parent.rotation.set(t.rotation.x, t.rotation.y, t.rotation.z)
 
-            obj.position.set(t.position.x, t.position.y, t.position.z)
-            obj.rotation.set(t.rotation.x, t.rotation.y, t.rotation.z)
+            let child = new THREE.Object3D()
+            parent.add(child)
 
             let geometry = t.geometry
             if (geometry) {
-                // obj.visible = data.visible
+
                 let mat = new THREE.MeshBasicMaterial({
                     color: geometry.color,
                     wireframe: geometry.wireframe
@@ -133,10 +135,9 @@ class VisualizationApp {
                 }
                 createMesh(geometry.shape, mat, function (mesh) {
                     mesh.matrixAutoUpdate = false
-                    if (geometry.offset) {
-                        mesh.matrix.elements = geometry.offset
-                    }
-                    obj.add(mesh)
+                    child.position.set(geometry.offsetPosition.x, geometry.offsetPosition.y, geometry.offsetPosition.z)
+                    child.rotation.set(geometry.offsetRotation.x, geometry.offsetRotation.y, geometry.offsetRotation.z)
+                    child.add(mesh)
                 })
             }
 
@@ -144,17 +145,17 @@ class VisualizationApp {
                 let mat = new THREE.LineBasicMaterial({
                     color: t.trail.color
                 })
-                obj.userData.trail = {
+                parent.userData.trail = {
                     "points": [],
                     "mat": mat,
                     "line": undefined,
                     "maxLength": t.trail.maxLength
                 }
-                that.trailObjects.push(obj)
+                that.trailObjects.push(parent)
             }
 
-            that.scene.add(obj)
-            that.objects[t.name] = obj
+            that.scene.add(parent)
+            that.objects[t.name] = parent
         })
 
         if (config.camera) {
@@ -178,7 +179,7 @@ class VisualizationApp {
                 {
                     textureWidth: 512,
                     textureHeight: 512,
-                    waterNormals: new THREE.TextureLoader().load('/textures/waternormals.jpg', function (texture) {
+                    waterNormals: new THREE.TextureLoader().load('/assets/waternormals.jpg', function (texture) {
                         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                     }),
                     alpha: 1.0,

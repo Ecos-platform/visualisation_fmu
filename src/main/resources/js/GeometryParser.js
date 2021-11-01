@@ -40,9 +40,10 @@ function loadObj(shape, callback) {
         xmlHttp.send(null);
     }
 
-    let load = function (hasMtl) {
+    let load = function () {
         objLoader.load("/assets?" + source, function (obj) {
             obj.scale.set(scale, scale, scale)
+            obj.updateMatrix()
             callback(obj)
         })
     }
@@ -58,10 +59,10 @@ function loadObj(shape, callback) {
             mtlLoader.load(mtlUrl, function (materials) {
                 materials.preload()
                 objLoader.setMaterials(materials)
-                load(true)
+                load()
             })
         } else {
-            load(false)
+            load()
         }
     })
 }

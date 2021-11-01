@@ -119,7 +119,10 @@ class VisualisationFmu(
 
             routing {
 
-                resources("/")
+                static("assets") {
+                    resources("js")
+                    resources("textures")
+                }
 
                 val cl = VisualisationFmu::class.java.classLoader
                 get("/") {
@@ -188,7 +191,7 @@ class VisualisationFmu(
 
             if (openBrowser) {
                 try {
-                    java.awt.Desktop.getDesktop().browse(URI("http://127.0.0.1:$port/index.html"))
+                    java.awt.Desktop.getDesktop().browse(URI("http://127.0.0.1:$port"))
                 } catch (ex: UnsupportedOperationException) {
                     // Do nothing
                 }
