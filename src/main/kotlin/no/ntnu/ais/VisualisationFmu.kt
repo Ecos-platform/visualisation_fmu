@@ -33,6 +33,8 @@ import java.util.*
 import javax.xml.bind.JAXB
 
 private const val NUM_TRANSFORMS = 50
+private const val MAX_FILE_SIZE = 50*8*1000000 // 50 MB
+private val supportedFormats = listOf("obj", "mtl", "stl", "gltf", "glb", "jpg", "png", "dds")
 
 class VisualisationFmu(
     args: Map<String, Any>
@@ -134,7 +136,12 @@ class VisualisationFmu(
                 get("/assets") {
                     val file = File(call.request.queryString().replace("%20", " "))
                     if (file.exists()) {
-                        call.respondFile(file)
+                        if (file.length() > MAX_FILE_SIZE) {
+                            call.response.status(HttpStatusCode.BadRequest)
+                        }
+                        if (file.extension.lowercase() in supportedFormats) {
+                            call.respondFile(file)
+                        }
                     }
                 }
 
