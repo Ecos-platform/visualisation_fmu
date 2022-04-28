@@ -10,7 +10,7 @@
         <vico:Geometry>
             <vico:OffsetRotation y="180"/>
             <vico:Shape>
-                <vico:Mesh source="data/obj/female02/female02.obj" scale="0.1"/>
+                <vico:Mesh source="female02.obj" scale="0.1"/>
             </vico:Shape>
         </vico:Geometry>
     </vico:Transform>
@@ -20,7 +20,7 @@
         <vico:Geometry>
             <vico:OffsetRotation y="180"/>
             <vico:Shape>
-                <vico:Mesh source="data/obj/female02/female02_vertex_colors.obj" scale="0.1"/>
+                <vico:Mesh source="female02_vertex_colors.obj" scale="0.1"/>
             </vico:Shape>
         </vico:Geometry>
     </vico:Transform>

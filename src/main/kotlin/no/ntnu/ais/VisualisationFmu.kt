@@ -153,7 +153,7 @@ class VisualisationFmu(
 
                 get("/assets") {
 
-                    val file = File(call.request.queryString().replace("%20", " "))
+                    val file = getFmuResource(call.request.queryString().replace("%20", " "))
                     if (file.exists()) {
                         val child = files.find { isChild(file.toPath(), it.parentFile.absolutePath) } != null
                         if (!child) {
@@ -165,6 +165,8 @@ class VisualisationFmu(
                         if (file.extension.lowercase() in supportedFormats) {
                             call.respondFile(file)
                         }
+                    } else {
+                        call.response.status(HttpStatusCode.BadRequest)
                     }
                 }
 

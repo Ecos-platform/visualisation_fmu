@@ -9,7 +9,10 @@ object TestMesh {
 
         val configPath = TestMesh::class.java.classLoader.getResource("TestMesh.xml")!!.file
 
-        val fmu = VisualisationFmu(mapOf("instanceName" to "instance"))
+        val fmu = VisualisationFmu(mapOf(
+            "instanceName" to "instance",
+            "resourceLocation" to "data/obj/female02"
+        ))
         fmu.__define__()
         fmu.enterInitialisationMode()
 
