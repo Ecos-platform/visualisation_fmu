@@ -1,5 +1,7 @@
 package no.ntnu.ais
 
+import java.util.Scanner
+
 object TestMesh {
 
     @JvmStatic
@@ -14,6 +16,14 @@ object TestMesh {
         fmu.setString(longArrayOf(0), arrayOf(configPath))
 
         fmu.exitInitialisationMode()
+
+        val sc = Scanner(System.`in`)
+        while (sc.hasNext()) {
+            if (sc.next() == "q")
+                break
+        }
+
+        fmu.terminate()
 
     }
 }

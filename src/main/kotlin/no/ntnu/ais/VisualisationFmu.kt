@@ -1,19 +1,18 @@
 package no.ntnu.ais
 
 import com.google.gson.GsonBuilder
-import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.http.cio.websocket.*
-import io.ktor.http.content.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
 import io.ktor.server.engine.*
+import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.runBlocking
@@ -32,7 +31,9 @@ import java.net.URL
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.xml.bind.JAXB
+import kotlin.concurrent.thread
 
 private const val NUM_TRANSFORMS = 50
 private const val MAX_FILE_SIZE = 50 * 8 * 1000000 // 50 MB
@@ -58,6 +59,8 @@ class VisualisationFmu(
     private lateinit var updateFrame: String
 
     private var t0 = System.currentTimeMillis()
+
+    private var t: Thread? = null
 
     private fun getTransform(index: Int): TTransform? {
         val transform = visualConfig?.transform?.getOrNull(index)
@@ -145,7 +148,8 @@ class VisualisationFmu(
                     }
                 }
 
-                val files = visualConfig.transform.mapNotNull { it.geometry?.shape?.mesh?.source?.let { File(it).absoluteFile } }
+                val files =
+                    visualConfig.transform.mapNotNull { it.geometry?.shape?.mesh?.source?.let { File(it).absoluteFile } }
 
                 get("/assets") {
 
@@ -194,7 +198,8 @@ class VisualisationFmu(
                             }
 
                     } catch (ex: ClosedReceiveChannelException) {
-                    } catch (ex: Throwable) {
+                        // ignore
+                    } catch (ex: Exception) {
                         ex.printStackTrace()
                     } finally {
                         synchronized(subscribers) {
@@ -223,7 +228,11 @@ class VisualisationFmu(
                 }
             }
 
-        }.start(wait = false)
+        }
+
+        t = thread {
+            app?.start(wait = true)
+        }
 
         updateFrame = JsonFrame(
             action = "update",
@@ -245,17 +254,22 @@ class VisualisationFmu(
 
     override fun terminate() {
         try {
-            app?.stop(500, 500)
+            app?.stop(500, 500, TimeUnit.MILLISECONDS)
+            t?.join()
         } catch (ex: Exception) {
-            // do nothing
+            ex.printStackTrace()
         }
+    }
+
+    override fun close() {
+        terminate()
     }
 
     fun handleChangeCommand(str: String) {
         val cmd = JsonFrame.fromJson(str)
         when (cmd.action) {
             "colorChanged" -> {
-                val data = cmd.data as Map<String, Any>
+                val data = cmd.data as Map<*, *>
                 val name = data["name"] as String
                 val color = (data["color"] as Number).toInt()
                 val transform = visualConfig?.transform?.find { it.name == name }
