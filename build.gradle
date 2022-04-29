@@ -16,7 +16,7 @@ repositories {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
-    implementation "no.ntnu.ais.fmu4j:fmi-export:0.1.0-SNAPSHOT"
+    implementation "no.ntnu.ais.fmu4j:fmi-export:0.1.2-SNAPSHOT"
 
     def ktor_version = "2.0.0"
     implementation "io.ktor:ktor-server-core:$ktor_version"

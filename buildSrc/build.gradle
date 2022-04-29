@@ -20,5 +20,5 @@ repositories {
 dependencies {
     compileOnly gradleApi()
 
-    implementation "no.ntnu.ais.fmu4j:fmu-builder:0.1.0-SNAPSHOT"
+    implementation "no.ntnu.ais.fmu4j:fmu-builder:0.1.2-SNAPSHOT"
 }
