@@ -64,7 +64,7 @@ class VisualizationApp {
                         if (!send(socket, "update")) {
                             clearInterval(id)
                         }
-                    }, 50)
+                    }, 33)
                     break
                 case "update":
                     that.update(payload.data.transforms)

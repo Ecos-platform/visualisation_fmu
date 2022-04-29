@@ -66,4 +66,6 @@ ssp("VisualisationFmuDemo") {
 
     }
 
-}.build()
+}.build().also {
+    visFile.delete()
+}

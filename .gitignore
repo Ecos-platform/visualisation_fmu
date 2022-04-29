@@ -46,6 +46,7 @@ build/
 *.iml
 
 *.csv
+*.ssp
 
 /**/out/
 /**/build/
