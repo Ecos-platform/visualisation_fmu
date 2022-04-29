@@ -2,7 +2,7 @@
 <vico:VisualFmuConfig xmlns:vico="http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig">
 
     <vico:CameraConfig>
-        <vico:initialPosition px="-15" py="15" pz="-25"/>
+        <vico:initialPosition px="-5" py="5" pz="-15"/>
     </vico:CameraConfig>
 
     <vico:Transform name="ball">
