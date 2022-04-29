@@ -6,8 +6,13 @@ As such, users can connect to the visualisation even if the FMU is running in th
 
 ### Configuration
 
-The structure of the simulation, `VisualConfig.xml`, is configured through XML and placed in the `resources` folder of the FMU.
+The structure of the simulation is configured through XML, `VisualConfig.xml`, 
+which must be placed in the `resources` folder of the FMU.
+
 See `VisualFmuConfig.xsd` for reference.
+
+#### 3D models
+OBJ/STL, STL and GLTF are supported. The files must be located inside the `resources` folder in the FMU.
 
 ###### Example
 ```xml
