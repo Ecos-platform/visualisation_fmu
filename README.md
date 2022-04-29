@@ -6,7 +6,7 @@ As such, users can connect to the visualisation even if the FMU is running in th
 
 ### Configuration
 
-The structure of the simulation is configured through XML and fed to the FMU as a string parameter during instantiation.
+The structure of the simulation, `VisualConfig.xml`, is configured through XML and placed in the `resources` folder of the FMU.
 See `VisualFmuConfig.xsd` for reference.
 
 ###### Example
