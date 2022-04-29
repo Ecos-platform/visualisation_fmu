@@ -42,3 +42,5 @@ jar {
 fmu4j {
     mainClasses = ["no.ntnu.ais.VisualisationFmu"]
 }
+
+tasks.named("build") { finalizedBy("fmu4j") }

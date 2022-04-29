@@ -9,10 +9,10 @@ As such, users can connect to the visualisation even if the FMU is running in th
 The structure of the simulation is configured through XML, `VisualConfig.xml`, 
 which must be placed in the `resources` folder of the FMU.
 
-See `VisualFmuConfig.xsd` for reference.
+See `VisualFmuConfig.xsd` for an API reference.
 
 #### 3D models
-OBJ/STL, STL and GLTF are supported. The files must be located inside the `resources` folder in the FMU.
+OBJ/MTL, STL and GLTF are supported. The files must be located inside the `resources` folder in the FMU.
 
 ###### Example
 ```xml
@@ -59,7 +59,7 @@ The FMU exposes input ports for position and rotation.
 ```
 
 Here, `i` is used to update the position and/or rotation of the `ith` transform defined in the configuration XML.
-Currently, only euler angles are supported.
+Currently, only euler angles for rotations are supported are supported.
 
 ### Run-time commands
 
@@ -77,7 +77,7 @@ User defined commands can be triggered by sending JSON messages to the exposed `
 
 ### Building the FMU
 
-Simply run `./gradlew fmu4j`. FMU is located in `build/generated`
+Simply run `./gradlew build`. The FMU is located in `build/generated`
 
 ### Requirements
 
