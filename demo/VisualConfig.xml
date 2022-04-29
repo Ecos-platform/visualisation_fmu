@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vico:VisualFmuConfig xmlns:vico="http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig">
+
+    <vico:CameraConfig>
+        <vico:initialPosition px="-15" py="15" pz="-25"/>
+    </vico:CameraConfig>
+
+    <vico:Transform name="ball">
+        <vico:Geometry color="red">
+            <vico:Shape>
+                <vico:Sphere radius="0.5"/>
+            </vico:Shape>
+        </vico:Geometry>
+    </vico:Transform>
+
+</vico:VisualFmuConfig>

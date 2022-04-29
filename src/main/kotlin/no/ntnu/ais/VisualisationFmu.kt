@@ -31,9 +31,9 @@ import java.net.URL
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
+import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import javax.xml.bind.JAXB
-import kotlin.concurrent.thread
 
 private const val NUM_TRANSFORMS = 50
 private const val MAX_FILE_SIZE = 50 * 8 * 1000000 // 50 MB
@@ -49,9 +49,6 @@ class VisualisationFmu(
     @ScalarVariable(causality = Fmi2Causality.parameter, variability = Fmi2Variability.fixed)
     private var openBrowser: Boolean = true
 
-    @ScalarVariable(causality = Fmi2Causality.parameter, variability = Fmi2Variability.fixed)
-    private var configPath: String = ""
-
     private var app: NettyApplicationEngine? = null
     private val subscribers = Collections.synchronizedList(mutableListOf<SendChannel<Frame>>())
 
@@ -59,8 +56,6 @@ class VisualisationFmu(
     private lateinit var updateFrame: String
 
     private var t0 = System.currentTimeMillis()
-
-    private var t: Thread? = null
 
     private fun getTransform(index: Int): TTransform? {
         val transform = visualConfig?.transform?.getOrNull(index)
@@ -126,8 +121,10 @@ class VisualisationFmu(
 
     override fun exitInitialisationMode() {
 
-        require(configPath.isNotEmpty())
-        val visualConfig = JAXB.unmarshal(File(configPath).absoluteFile, TVisualFmuConfig::class.java)
+        val configPath = getFmuResource("VisualConfig.xml")
+
+        require(configPath.exists()) { "No such file: ${configPath.absoluteFile}" }
+        val visualConfig = JAXB.unmarshal(configPath.absoluteFile, TVisualFmuConfig::class.java)
         this.visualConfig = visualConfig
 
         app = embeddedServer(Netty, port = port) {
@@ -148,14 +145,15 @@ class VisualisationFmu(
                     }
                 }
 
-                val files =
-                    visualConfig.transform.mapNotNull { it.geometry?.shape?.mesh?.source?.let { File(it).absoluteFile } }
+                val files = visualConfig.transform.mapNotNull {
+                        it.geometry?.shape?.mesh?.source?.let { File(it).absoluteFile }
+                    }
 
                 get("/assets") {
 
                     val file = getFmuResource(call.request.queryString().replace("%20", " "))
                     if (file.exists()) {
-                        val child = files.find { isChild(file.toPath(), it.parentFile.absolutePath) } != null
+                        val child = files.find { isChild(file.toPath(), getFmuResource(".").parent) } != null
                         if (!child) {
                             call.response.status(HttpStatusCode.BadRequest)
                         }
@@ -185,7 +183,7 @@ class VisualisationFmu(
                                             Frame.Text(
                                                 JsonFrame(
                                                     action = "setup",
-                                                    data = visualConfig?.toJsonObject(true)
+                                                    data = visualConfig.toJsonObject(true)
                                                 ).toJson()
                                             )
                                         )
@@ -200,6 +198,8 @@ class VisualisationFmu(
                             }
 
                     } catch (ex: ClosedReceiveChannelException) {
+                        // ignore
+                    } catch (ex: CancellationException) {
                         // ignore
                     } catch (ex: Exception) {
                         ex.printStackTrace()
@@ -230,11 +230,7 @@ class VisualisationFmu(
                 }
             }
 
-        }
-
-        t = thread {
-            app?.start(wait = true)
-        }
+        }.start(wait = false)
 
         updateFrame = JsonFrame(
             action = "update",
@@ -257,9 +253,9 @@ class VisualisationFmu(
     override fun terminate() {
         try {
             app?.stop(500, 500, TimeUnit.MILLISECONDS)
-            t?.join()
+            app = null
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            // ignore
         }
     }
 

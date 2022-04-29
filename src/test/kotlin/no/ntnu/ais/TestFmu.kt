@@ -28,15 +28,13 @@ object TestFmu {
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val configPath = TestFmu::class.java.classLoader.getResource("Test.xml")!!.file
-
-        VisualisationFmu(mapOf("instanceName" to "instance")).use { fmu ->
+        VisualisationFmu(mapOf(
+            "instanceName" to "instance",
+            "resourceLocation" to "data/TestFmuConfig"
+        )).use { fmu ->
 
             fmu.__define__()
             fmu.enterInitialisationMode()
-
-            fmu.setString(longArrayOf(0), arrayOf(configPath))
-
             fmu.exitInitialisationMode()
 
             listenForInput()
