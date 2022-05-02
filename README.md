@@ -81,4 +81,6 @@ Simply run `./gradlew build`. The FMU is located in `build/generated`
 
 ### Requirements
 
-The FMU is built using the JVM (JDK8), so a suitable run-time environment is required. 
+The FMU is built using the JVM (JDK8), so a suitable run-time environment is required. That is, add `jvm.dll/libjvm.so` to PATH.
+
+Python 3.7 < is known not work with FMU4j, which is used to generate the FMU.
