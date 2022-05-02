@@ -60,7 +60,7 @@ object TestFmu {
                             "color" to 0x00ff00
                         )
                     ).toJson()
-                    fmu.setString(longArrayOf(1), arrayOf(payload))
+                    fmu.setString(longArrayOf(0), arrayOf(payload))
                 }
 
                 Thread.sleep(10)
