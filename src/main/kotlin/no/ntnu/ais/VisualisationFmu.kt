@@ -271,7 +271,9 @@ class VisualisationFmu(
 
     override fun terminate() {
         try {
-            subscribers.clear()
+            synchronized(subscribers) {
+                subscribers.clear()
+            }
             app?.stop(500, 1000, TimeUnit.MILLISECONDS)
             app = null
         } catch (ex: Exception) {
