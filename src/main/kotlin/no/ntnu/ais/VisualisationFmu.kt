@@ -31,6 +31,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.CancellationException
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import javax.xml.bind.JAXB
 
@@ -48,6 +49,9 @@ class VisualisationFmu(
     @ScalarVariable(causality = Fmi2Causality.parameter, variability = Fmi2Variability.fixed)
     private var openBrowser: Boolean = true
 
+    @ScalarVariable(causality = Fmi2Causality.parameter, variability = Fmi2Variability.fixed)
+    private var startBlocking: Boolean = true
+
     private var app: NettyApplicationEngine? = null
     private val subscribers = Collections.synchronizedList(mutableListOf<SendChannel<Frame>>())
 
@@ -55,6 +59,8 @@ class VisualisationFmu(
     private lateinit var updateFrame: String
 
     private var t0 = System.currentTimeMillis()
+
+    private val latch = CountDownLatch(1)
 
     private fun getTransform(index: Int): TTransform? {
         val transform = visualConfig?.transform?.getOrNull(index)
@@ -151,6 +157,7 @@ class VisualisationFmu(
                     call.respondText(ContentType.Text.Html) {
                         cl.getResourceAsStream("index.html")!!.bufferedReader().readText()
                     }
+                    latch.countDown()
                 }
 
                 val files = visualConfig.transform.mapNotNull {
@@ -244,6 +251,10 @@ class VisualisationFmu(
             action = "update",
             data = visualConfig?.toJsonObject(false)
         ).toJson()
+
+        if (startBlocking) {
+            latch.await()
+        }
     }
 
     override fun doStep(currentTime: Double, dt: Double) {
@@ -260,7 +271,8 @@ class VisualisationFmu(
 
     override fun terminate() {
         try {
-            app?.stop(500, 500, TimeUnit.MILLISECONDS)
+            subscribers.clear()
+            app?.stop(500, 1000, TimeUnit.MILLISECONDS)
             app = null
         } catch (ex: Exception) {
             // ignore
