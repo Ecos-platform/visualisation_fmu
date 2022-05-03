@@ -1,6 +1,5 @@
 package no.ntnu.ais
 
-import com.google.gson.GsonBuilder
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -70,6 +69,30 @@ class VisualisationFmu(
         return transform
     }
 
+    private fun registerPosition(i: Int) {
+        register(real("transform[$i].position.x") { getTransform(i)?.position?.px?.toDouble() ?: 0.0 }
+            .setter { v -> getTransform(i)?.position?.apply { px = v.toFloat() } }
+            .causality(Fmi2Causality.input))
+        register(real("transform[$i].position.y") { getTransform(i)?.position?.py?.toDouble() ?: 0.0 }
+            .setter { v -> getTransform(i)?.position?.apply { py = v.toFloat() } }
+            .causality(Fmi2Causality.input))
+        register(real("transform[$i].position.z") { getTransform(i)?.position?.pz?.toDouble() ?: 0.0 }
+            .setter { v -> getTransform(i)?.position?.apply { pz = v.toFloat() } }
+            .causality(Fmi2Causality.input))
+    }
+
+    private fun registerRotation(i: Int) {
+        register(real("transform[$i].rotation.x") { getTransform(i)?.rotation?.x?.toDouble() ?: 0.0 }
+            .setter { v -> getTransform(i)?.rotation?.apply { x = v.toFloat() } }
+            .causality(Fmi2Causality.input))
+        register(real("transform[$i].rotation.y") { getTransform(i)?.rotation?.y?.toDouble() ?: 0.0 }
+            .setter { v -> getTransform(i)?.rotation?.apply { y = v.toFloat() } }
+            .causality(Fmi2Causality.input))
+        register(real("transform[$i].rotation.z") { getTransform(i)?.rotation?.z?.toDouble() ?: 0.0 }
+            .setter { v -> getTransform(i)?.rotation?.apply { z = v.toFloat() } }
+            .causality(Fmi2Causality.input))
+    }
+
     override fun registerVariables() {
 
         register(
@@ -78,27 +101,8 @@ class VisualisationFmu(
         )
 
         for (i in 0..NUM_TRANSFORMS) {
-
-            register(real("transform[$i].position.x") { getTransform(i)?.position?.px?.toDouble() ?: 0.0 }
-                .setter { v -> getTransform(i)?.position?.apply { px = v.toFloat() } }
-                .causality(Fmi2Causality.input))
-            register(real("transform[$i].position.y") { getTransform(i)?.position?.py?.toDouble() ?: 0.0 }
-                .setter { v -> getTransform(i)?.position?.apply { py = v.toFloat() } }
-                .causality(Fmi2Causality.input))
-            register(real("transform[$i].position.z") { getTransform(i)?.position?.pz?.toDouble() ?: 0.0 }
-                .setter { v -> getTransform(i)?.position?.apply { pz = v.toFloat() } }
-                .causality(Fmi2Causality.input))
-
-            register(real("transform[$i].rotation.x") { getTransform(i)?.rotation?.x?.toDouble() ?: 0.0 }
-                .setter { v -> getTransform(i)?.rotation?.apply { x = v.toFloat() } }
-                .causality(Fmi2Causality.input))
-            register(real("transform[$i].rotation.y") { getTransform(i)?.rotation?.y?.toDouble() ?: 0.0 }
-                .setter { v -> getTransform(i)?.rotation?.apply { y = v.toFloat() } }
-                .causality(Fmi2Causality.input))
-            register(real("transform[$i].rotation.z") { getTransform(i)?.rotation?.z?.toDouble() ?: 0.0 }
-                .setter { v -> getTransform(i)?.rotation?.apply { z = v.toFloat() } }
-                .causality(Fmi2Causality.input))
-
+            registerPosition(i)
+            registerRotation(i)
         }
 
     }
@@ -106,10 +110,14 @@ class VisualisationFmu(
     private fun sendSubs(frame: JsonFrame) {
         val json = frame.toJson()
         synchronized(subscribers) {
-            runBlocking {
-                subscribers.forEach { sub ->
-                    sub.send(Frame.Text(json))
+            try {
+                runBlocking {
+                    subscribers.forEach { sub ->
+                        sub.send(Frame.Text(json))
+                    }
                 }
+            } catch (ex: Exception) {
+                // do nothing
             }
         }
     }
@@ -146,8 +154,8 @@ class VisualisationFmu(
                 }
 
                 val files = visualConfig.transform.mapNotNull {
-                        it.geometry?.shape?.mesh?.source?.let { File(it).absoluteFile }
-                    }
+                    it.geometry?.shape?.mesh?.source?.let { File(it).absoluteFile }
+                }
 
                 get("/assets") {
 
@@ -263,7 +271,7 @@ class VisualisationFmu(
         terminate()
     }
 
-    fun handleChangeCommand(str: String) {
+    private fun handleChangeCommand(str: String) {
         val cmd = JsonFrame.fromJson(str)
         when (cmd.action) {
             "colorChanged" -> {
@@ -287,7 +295,7 @@ class VisualisationFmu(
     }
 
     private companion object {
-        private const val MAX_UPDATE_RATE = 1.0 / 120
+        private const val MAX_UPDATE_RATE = 1.0 / 60
 
         private val hostName by lazy {
             var hostAddress: String? = "127.0.0.1"
@@ -308,24 +316,3 @@ class VisualisationFmu(
 
 }
 
-internal class JsonFrame(
-    val action: String,
-    val data: Any? = null
-) {
-
-    fun toJson() = gson.toJson(this)
-
-    companion object {
-
-        fun fromJson(str: String): JsonFrame {
-            return gson.fromJson(str, JsonFrame::class.java)
-        }
-
-        private val gson = GsonBuilder()
-            .serializeNulls()
-            .setPrettyPrinting()
-            .create()
-
-    }
-
-}
