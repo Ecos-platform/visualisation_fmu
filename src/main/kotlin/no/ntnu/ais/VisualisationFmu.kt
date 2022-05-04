@@ -1,5 +1,6 @@
 package no.ntnu.ais
 
+import com.google.gson.JsonObject
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -39,6 +40,7 @@ private const val NUM_TRANSFORMS = 50
 private const val MAX_FILE_SIZE = 50 * 8 * 1000000 // 50 MB
 private val supportedFormats = listOf("obj", "mtl", "stl", "gltf", "glb", "jpg", "png", "dds")
 
+
 class VisualisationFmu(
     args: Map<String, Any>
 ) : Fmi2Slave(args) {
@@ -55,47 +57,73 @@ class VisualisationFmu(
     private var app: NettyApplicationEngine? = null
     private val subscribers = Collections.synchronizedList(mutableListOf<SendChannel<Frame>>())
 
-    private var visualConfig: TVisualFmuConfig? = null
+//    private var visualConfig: TVisualFmuConfig? = null
     private lateinit var updateFrame: String
 
     private var t0 = System.currentTimeMillis()
 
+    private val transforms: MutableList<Transform> = mutableListOf()
+
     private val latch = CountDownLatch(1)
 
-    private fun getTransform(index: Int): TTransform? {
-        val transform = visualConfig?.transform?.getOrNull(index)
-        transform?.apply {
-            if (position == null) {
-                position = TPosition()
-            }
-            if (rotation == null) {
-                rotation = TEuler()
-            }
+    private fun getTransform(index: Int): Transform? {
+        return transforms.getOrNull(index)
+    }
+
+    private fun getTransformWithPosition(index: Int): Transform? {
+        return transforms.getOrNull(index)?.apply {
+            if (position == null) position = TPosition()
         }
-        return transform
+    }
+
+    private fun getTransformWithRotation(index: Int): Transform? {
+        return transforms.getOrNull(index)?.apply {
+            if (rotation == null) rotation = TEuler()
+        }
+    }
+
+    private fun getTransformWithQuaternion(index: Int): Transform? {
+        return transforms.getOrNull(index)?.apply {
+            if (quaternion == null) quaternion = Quaternion()
+        }
     }
 
     private fun registerPosition(i: Int) {
         register(real("transform[$i].position.x") { getTransform(i)?.position?.px?.toDouble() ?: 0.0 }
-            .setter { v -> getTransform(i)?.position?.apply { px = v.toFloat() } }
+            .setter { v -> getTransformWithPosition(i)?.position?.apply { px = v.toFloat() } }
             .causality(Fmi2Causality.input))
         register(real("transform[$i].position.y") { getTransform(i)?.position?.py?.toDouble() ?: 0.0 }
-            .setter { v -> getTransform(i)?.position?.apply { py = v.toFloat() } }
+            .setter { v -> getTransformWithPosition(i)?.position?.apply { py = v.toFloat() } }
             .causality(Fmi2Causality.input))
         register(real("transform[$i].position.z") { getTransform(i)?.position?.pz?.toDouble() ?: 0.0 }
-            .setter { v -> getTransform(i)?.position?.apply { pz = v.toFloat() } }
+            .setter { v -> getTransformWithPosition(i)?.position?.apply { pz = v.toFloat() } }
             .causality(Fmi2Causality.input))
     }
 
     private fun registerRotation(i: Int) {
         register(real("transform[$i].rotation.x") { getTransform(i)?.rotation?.x?.toDouble() ?: 0.0 }
-            .setter { v -> getTransform(i)?.rotation?.apply { x = v.toFloat() } }
+            .setter { v -> getTransformWithRotation(i)?.rotation?.apply { x = v.toFloat() } }
             .causality(Fmi2Causality.input))
         register(real("transform[$i].rotation.y") { getTransform(i)?.rotation?.y?.toDouble() ?: 0.0 }
-            .setter { v -> getTransform(i)?.rotation?.apply { y = v.toFloat() } }
+            .setter { v -> getTransformWithRotation(i)?.rotation?.apply { y = v.toFloat() } }
             .causality(Fmi2Causality.input))
         register(real("transform[$i].rotation.z") { getTransform(i)?.rotation?.z?.toDouble() ?: 0.0 }
-            .setter { v -> getTransform(i)?.rotation?.apply { z = v.toFloat() } }
+            .setter { v -> getTransformWithRotation(i)?.rotation?.apply { z = v.toFloat() } }
+            .causality(Fmi2Causality.input))
+    }
+
+    private fun registerQuaternion(i: Int) {
+        register(real("transform[$i].quaternion.x") { getTransform(i)?.quaternion?.x?.toDouble() ?: 0.0 }
+            .setter { v -> getTransformWithQuaternion(i)?.quaternion?.apply { x = v.toFloat() } }
+            .causality(Fmi2Causality.input))
+        register(real("transform[$i].quaternion.y") { getTransform(i)?.quaternion?.y?.toDouble() ?: 0.0 }
+            .setter { v -> getTransformWithQuaternion(i)?.quaternion?.apply { y = v.toFloat() } }
+            .causality(Fmi2Causality.input))
+        register(real("transform[$i].quaternion.z") { getTransform(i)?.quaternion?.z?.toDouble() ?: 0.0 }
+            .setter { v -> getTransformWithQuaternion(i)?.quaternion?.apply { z = v.toFloat() } }
+            .causality(Fmi2Causality.input))
+        register(real("transform[$i].quaternion.w") { getTransform(i)?.quaternion?.w?.toDouble() ?: 1.0 }
+            .setter { v -> getTransformWithQuaternion(i)?.quaternion?.apply { w = v.toFloat() } }
             .causality(Fmi2Causality.input))
     }
 
@@ -109,6 +137,7 @@ class VisualisationFmu(
         for (i in 0..NUM_TRANSFORMS) {
             registerPosition(i)
             registerRotation(i)
+            registerQuaternion(i)
         }
 
     }
@@ -139,7 +168,10 @@ class VisualisationFmu(
 
         require(configPath.exists()) { "No such file: ${configPath.absoluteFile}" }
         val visualConfig = JAXB.unmarshal(configPath.absoluteFile, TVisualFmuConfig::class.java)
-        this.visualConfig = visualConfig
+
+        visualConfig.transform.forEach { t ->
+            transforms.add(Transform(t))
+        }
 
         app = embeddedServer(Netty, port = port) {
 
@@ -198,7 +230,7 @@ class VisualisationFmu(
                                             Frame.Text(
                                                 JsonFrame(
                                                     action = "setup",
-                                                    data = visualConfig.toJsonObject(true)
+                                                    data = visualConfig.toJsonObject()
                                                 ).toJson()
                                             )
                                         )
@@ -249,7 +281,7 @@ class VisualisationFmu(
 
         updateFrame = JsonFrame(
             action = "update",
-            data = visualConfig?.toJsonObject(false)
+            data = visualConfig?.toJsonObject()
         ).toJson()
 
         if (startBlocking) {
@@ -262,7 +294,7 @@ class VisualisationFmu(
         if (timeSinceUpdate > MAX_UPDATE_RATE) {
             updateFrame = JsonFrame(
                 action = "update",
-                data = visualConfig?.toJsonObject(false)
+                data = JsonObject().also { it.add("transforms", transforms.toJsonArray()) }
             ).toJson()
 
             t0 = System.currentTimeMillis()
@@ -292,7 +324,7 @@ class VisualisationFmu(
                 val data = cmd.data as Map<*, *>
                 val name = data["name"] as String
                 val color = (data["color"] as Number).toInt()
-                val transform = visualConfig?.transform?.find { it.name == name }
+                val transform = transforms.find { it.name == name }
                 transform?.geometry?.color = color.toHexString()
 
                 sendSubs(

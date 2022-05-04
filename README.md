@@ -46,7 +46,7 @@ OBJ/MTL, STL and GLTF are supported. The files must be located inside the `resou
 
 ### Updating transforms
  
-The FMU exposes input ports for position and rotation.
+The FMU exposes input ports for position and rotation/quaternion.
 
 ```
     transform[i].position.x
@@ -56,10 +56,14 @@ The FMU exposes input ports for position and rotation.
     transform[i].rotation.x
     transform[i].rotation.y
     transform[i].rotation.z
+    
+    transform[i].quaternion.x
+    transform[i].quaternion.y
+    transform[i].quaternion.z
+    transform[i].quaternion.w
 ```
 
 Here, `i` is used to update the position and/or rotation of the `ith` transform defined in the configuration XML.
-Currently, only euler angles for rotations are supported are supported.
 
 ### Run-time commands
 

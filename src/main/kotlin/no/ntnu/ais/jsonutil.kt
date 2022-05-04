@@ -1,29 +1,54 @@
 package no.ntnu.ais
 
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import no.ntnu.ais.schema.*
 import java.io.File
 
-fun TPosition?.toJsonObject(): JsonObject {
+internal class JsonFrame(
+    val action: String,
+    val data: Any? = null
+) {
+
+    fun toJson() = gson.toJson(this)
+
+    companion object {
+
+        fun fromJson(str: String): JsonFrame {
+            return gson.fromJson(str, JsonFrame::class.java)
+        }
+
+        private val gson = GsonBuilder()
+            .serializeNulls()
+            .setPrettyPrinting()
+            .create()
+    }
+
+}
+
+fun TPosition.toJsonObject(): JsonObject {
     return JsonObject().also { obj ->
-        obj.addProperty("x", this?.px ?: 0f)
-        obj.addProperty("y", this?.py ?: 0f)
-        obj.addProperty("z", this?.pz ?: 0f)
+        obj.addProperty("x", this.px)
+        obj.addProperty("y", this.py)
+        obj.addProperty("z", this.pz)
     }
 }
 
-fun TEuler?.toJsonObject(): JsonObject {
+fun TEuler.toJsonObject(): JsonObject {
     return JsonObject().also { obj ->
-        if (this == null) {
-            obj.addProperty("x", 0f)
-            obj.addProperty("y", 0f)
-            obj.addProperty("z", 0f)
-        } else {
-            obj.addProperty("x", if (repr == TAngleRepr.DEG) Math.toRadians(x.toDouble()).toFloat() else x)
-            obj.addProperty("y", if (repr == TAngleRepr.DEG) Math.toRadians(y.toDouble()).toFloat() else y)
-            obj.addProperty("z", if (repr == TAngleRepr.DEG) Math.toRadians(z.toDouble()).toFloat() else z)
-        }
+        obj.addProperty("x", if (repr == TAngleRepr.DEG) Math.toRadians(x.toDouble()).toFloat() else x)
+        obj.addProperty("y", if (repr == TAngleRepr.DEG) Math.toRadians(y.toDouble()).toFloat() else y)
+        obj.addProperty("z", if (repr == TAngleRepr.DEG) Math.toRadians(z.toDouble()).toFloat() else z)
+    }
+}
+
+fun Quaternion.toJsonObject(): JsonObject {
+    return JsonObject().also { obj ->
+        obj.addProperty("x", this.x)
+        obj.addProperty("y", this.y)
+        obj.addProperty("z", this.z)
+        obj.addProperty("w", this.w)
     }
 }
 
@@ -77,8 +102,12 @@ fun TTrail.toJsonObject(): JsonObject {
 
 fun TGeometry.toJsonObject(): JsonObject {
     return JsonObject().also { obj ->
-        obj.add("offsetPosition", offsetPosition.toJsonObject())
-        obj.add("offsetRotation", offsetRotation.toJsonObject())
+        offsetPosition?.also {
+            obj.add("offsetPosition", offsetPosition.toJsonObject())
+        }
+        offsetRotation?.also {
+            obj.add("offsetRotation", offsetRotation.toJsonObject())
+        }
         obj.addProperty("opacity", opacity)
         obj.addProperty("wireframe", isWireframe)
         obj.addProperty("color", color.toHex())
@@ -86,23 +115,52 @@ fun TGeometry.toJsonObject(): JsonObject {
     }
 }
 
-fun TTransform.toJsonObject(setup: Boolean): JsonObject {
+fun TTransform.toJsonObject(): JsonObject {
     val obj = JsonObject()
     obj.addProperty("name", name)
     obj.addProperty("parent", parent)
-    obj.add("position", position.toJsonObject())
-    obj.add("rotation", rotation.toJsonObject())
-    if (setup) {
-        obj.add("geometry", geometry.toJsonObject())
-        obj.add("trail", trail?.toJsonObject())
+    position?.also {
+        obj.add("position", it.toJsonObject())
+    }
+    rotation?.also {
+        obj.add("rotation", it.toJsonObject())
+    }
+
+
+    obj.add("geometry", geometry.toJsonObject())
+    obj.add("trail", trail?.toJsonObject())
+
+    return obj
+}
+
+fun Transform.toJsonObject(): JsonObject {
+    val obj = JsonObject()
+    obj.addProperty("name", name)
+    position?.also {
+        obj.add("position", it.toJsonObject())
+    }
+    rotation?.also {
+        obj.add("rotation", it.toJsonObject())
+    }
+    quaternion?.also {
+        obj.add("quaternion", it.toJsonObject())
     }
     return obj
 }
 
-fun List<TTransform>.toJsonArray(setup: Boolean): JsonArray {
+fun List<TTransform>.toJsonArray(): JsonArray {
     return JsonArray().also { array ->
         this.forEach { t ->
-            array.add(t.toJsonObject(setup))
+            array.add(t.toJsonObject())
+        }
+    }
+}
+
+@JvmName("toJsonArrayTransform")
+fun List<Transform>.toJsonArray(): JsonArray {
+    return JsonArray().also { array ->
+        this.forEach { t ->
+            array.add(t.toJsonObject())
         }
     }
 }
@@ -129,14 +187,14 @@ private fun String.toHex(): Int {
     }
 }
 
-fun TVisualFmuConfig.toJsonObject(setup: Boolean): JsonObject {
+fun TVisualFmuConfig.toJsonObject(): JsonObject {
 
     return JsonObject().also { obj ->
-        obj.add("transforms", transform.toJsonArray(setup))
-        if (setup) {
-            obj.add("water", water?.toJsonObject())
-            obj.add("camera", cameraConfig?.toJsonObject())
-        }
+        obj.add("transforms", transform.toJsonArray())
+
+        obj.add("water", water?.toJsonObject())
+        obj.add("camera", cameraConfig?.toJsonObject())
+
     }
 
 }

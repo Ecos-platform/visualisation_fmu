@@ -110,14 +110,17 @@ class VisualizationApp {
 
     setup(config) {
 
-
         let that = this
         config.transforms.forEach(function (t) {
 
             let parent = new THREE.Object3D()
             parent.name = t.name
-            parent.position.set(t.position.x, t.position.y, t.position.z)
-            parent.rotation.set(t.rotation.x, t.rotation.y, t.rotation.z)
+            if (t.position) {
+                parent.position.set(t.position.x, t.position.y, t.position.z)
+            }
+            if (t.rotation) {
+                parent.rotation.set(t.rotation.x, t.rotation.y, t.rotation.z)
+            }
 
             let child = new THREE.Object3D()
             parent.add(child)
@@ -135,8 +138,12 @@ class VisualizationApp {
                 }
                 createMesh(geometry.shape, mat, function (mesh) {
                     mesh.matrixAutoUpdate = false
-                    child.position.set(geometry.offsetPosition.x, geometry.offsetPosition.y, geometry.offsetPosition.z)
-                    child.rotation.set(geometry.offsetRotation.x, geometry.offsetRotation.y, geometry.offsetRotation.z)
+                    if (geometry.offsetPosition) {
+                        child.position.set(geometry.offsetPosition.x, geometry.offsetPosition.y, geometry.offsetPosition.z)
+                    }
+                    if (geometry.offsetRotation) {
+                        child.rotation.set(geometry.offsetRotation.x, geometry.offsetRotation.y, geometry.offsetRotation.z)
+                    }
                     child.add(mesh)
                 })
             }
@@ -209,8 +216,14 @@ class VisualizationApp {
         transforms.forEach(function (t) {
             let obj = that.objects[t.name]
             if (obj) {
-                obj.position.set(t.position.x, t.position.y, t.position.z)
-                obj.rotation.set(t.rotation.x, t.rotation.y, t.rotation.z)
+                if (t.position) {
+                    obj.position.set(t.position.x, t.position.y, t.position.z)
+                }
+                if (t.rotation) {
+                    obj.rotation.set(t.rotation.x, t.rotation.y, t.rotation.z)
+                } else if (t.quaternion) {
+                    obj.quaternion.set(t.quaternion.x, t.quaternion.y, t.quaternion.z, t.quaternion.w)
+                }
             }
         })
     }
