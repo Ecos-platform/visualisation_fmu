@@ -20,7 +20,7 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="CameraConfig" type="{http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig}TCameraConfig" minOccurs="0"/>
- *         &lt;element name="Transform" type="{http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig}TTransform" maxOccurs="unbounded"/>
+ *         &lt;element name="Transform" type="{http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig}TTransform" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element name="Water" type="{http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig}TWater" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
@@ -40,7 +40,7 @@ public class TVisualFmuConfig {
 
     @XmlElement(name = "CameraConfig", namespace = "http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig")
     protected TCameraConfig cameraConfig;
-    @XmlElement(name = "Transform", namespace = "http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig", required = true)
+    @XmlElement(name = "Transform", namespace = "http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig")
     protected List<TTransform> transform;
     @XmlElement(name = "Water", namespace = "http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig")
     protected TWater water;

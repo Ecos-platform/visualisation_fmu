@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vico:VisualFmuConfig xmlns:vico="http://github.com/Vico-platform/VisualisationFmu/VisualFmuConfig">
+
+    <vico:CameraConfig>
+        <vico:initialPosition px="-50" py="25" pz="-50"/>
+    </vico:CameraConfig>
+
+    <vico:Water height="100" width="100"/>
+
+</vico:VisualFmuConfig>

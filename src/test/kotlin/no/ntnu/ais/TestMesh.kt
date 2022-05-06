@@ -4,7 +4,7 @@ import java.util.Scanner
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-object TestMesh {
+internal object TestMesh {
 
     @JvmStatic
     fun main(args: Array<String>) {

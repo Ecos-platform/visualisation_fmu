@@ -9,7 +9,7 @@
     <xs:complexType name="TVisualFmuConfig">
         <xs:sequence>
             <xs:element name="CameraConfig" type="vico:TCameraConfig" minOccurs="0"/>
-            <xs:element name="Transform" type="vico:TTransform" maxOccurs="unbounded"/>
+            <xs:element name="Transform" type="vico:TTransform" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="Water" type="vico:TWater" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>

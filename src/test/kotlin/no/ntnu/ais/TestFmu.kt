@@ -1,24 +1,25 @@
 package no.ntnu.ais
 
 import java.util.Scanner
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.math.PI
 import kotlin.math.sin
 
-object TestFmu {
+internal object TestFmu {
 
-    var stop = false
+    private var stop = AtomicBoolean(false)
 
-    fun sine(t: Double): Double {
+    private fun sine(t: Double): Double {
         return 5.0 * sin(2 * PI * 0.1 * t)
     }
 
-    fun listenForInput() {
+    private fun listenForInput() {
         thread {
             val sc = Scanner(System.`in`)
             while(sc.hasNext()) {
                 if (sc.next() == "q") {
-                    stop = true
+                    stop.set(true)
                     break
                 }
             }
@@ -42,7 +43,7 @@ object TestFmu {
             var t = 0.0
             var t0 = System.currentTimeMillis()
             var colorChanged = false
-            while (!stop) {
+            while (!stop.get()) {
 
                 val dt = (System.currentTimeMillis() - t0).toDouble() / 1000
                 t0 = System.currentTimeMillis()
