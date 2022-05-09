@@ -9,7 +9,7 @@ import no.ntnu.ihb.sspgen.dsl.*
 
 val visFile = File("VisualisationFmu.fmu")
 if (!visFile.exists()) {
-    Files.copy(FileInputStream("../build/generated/VisualisationFmu.fmu"), File("VisualisationFmu.fmu").toPath())
+    Files.copy(FileInputStream("../../build/generated/VisualisationFmu.fmu"), File("VisualisationFmu.fmu").toPath())
     // copy VisualConfig.xml into VisualisationFmu
     FileSystems.newFileSystem(visFile.toPath(), null).use { fs ->
         Files.copy(FileInputStream("VisualConfig.xml"), fs.getPath("resources/VisualConfig.xml"))
